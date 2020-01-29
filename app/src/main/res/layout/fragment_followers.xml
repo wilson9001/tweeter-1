@@ -5,17 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".view.main.following.FollowingFragment">
+    tools:context=".view.main.followers.FollowersFragment">
 
     <TextView
-        android:id="@+id/textView4"
-        android:layout_width="match_parent"
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This is the following fragment" />
+        android:text="This is the followers fragment" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/followingRecyclerView"
+        android:id="@+id/followersRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
 </LinearLayout>
