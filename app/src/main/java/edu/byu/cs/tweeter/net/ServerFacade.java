@@ -7,8 +7,14 @@ import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.Follow;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.FeedRequest;
+import edu.byu.cs.tweeter.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.response.FeedResponse;
+import edu.byu.cs.tweeter.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.net.response.StoryResponse;
 
 public class ServerFacade {
 
@@ -42,6 +48,30 @@ public class ServerFacade {
 
         return new FollowingResponse(responseFollowees, hasMorePages);
     }
+
+    public FollowersResponse getFollowers(FollowersRequest followersRequest)
+    {
+
+        //TODO: Fill in functionality
+        return null;
+    }
+
+    public StoryResponse getStory(StoryRequest storyRequest)
+    {
+
+        //TODO: Fill in functionality
+        return null;
+    }
+
+    public FeedResponse getFeed(FeedRequest feedRequest)
+    {
+
+        //TODO: Fill in functionality
+        return null;
+    }
+
+    //TODO: implement private helper functions for followers
+    //TODO: implement private helper functions for story
 
     private int getFolloweesStartingIndex(User lastFollowee, List<User> allFollowees) {
 

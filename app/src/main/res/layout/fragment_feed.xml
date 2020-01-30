@@ -11,8 +11,8 @@
         android:layout_weight="1"
         android:text="This is the feed fragment" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <!--androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="1" /-->
 </LinearLayout>
