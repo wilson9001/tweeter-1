@@ -1,20 +1,33 @@
 package edu.byu.cs.tweeter.net.request;
 
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class StoryRequest {
+public class StoryRequest
+{
     private final User owner;
     private final int limit;
-    //TODO: create story class and add as private data member here
+    private final Status lastStatus;
 
-    public StoryRequest(User owner, int limit/*, add in last status here*/)
+    public StoryRequest(User owner, int limit, Status lastStatus)
     {
         this.owner = owner;
         this.limit = limit;
-        //TODO: set last status here
+        this.lastStatus = lastStatus;
     }
 
-    public User getOwner() { return owner; }
-    public int getLimit() { return limit; }
-    //TODO: create getter for last status here
+    public User getOwner()
+    {
+        return owner;
+    }
+
+    public int getLimit()
+    {
+        return limit;
+    }
+
+    public Status getLastStatus()
+    {
+        return lastStatus;
+    }
 }

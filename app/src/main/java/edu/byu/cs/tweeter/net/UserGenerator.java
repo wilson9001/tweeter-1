@@ -18,15 +18,16 @@ import edu.byu.cs.tweeter.model.domain.User;
  * A temporary class that generates and returns {@link User} objects. This class may be removed when
  * the server is created and the ServerFacade no longer needs to return dummy data.
  */
-public class UserGenerator {
+public class UserGenerator
+{
 
     private static final String MALE_NAMES_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/json/mnames.json";
     private static final String FEMALE_NAMES_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/json/fnames.json";
     private static final String SURNAMES_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/json/snames.json";
 
-    private static final String [] maleNames;
-    private static final String [] femaleNames;
-    private static final String [] surnames;
+    private static final String[] maleNames;
+    private static final String[] femaleNames;
+    private static final String[] surnames;
 
     static final String MALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
     private static final String FEMALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/daisy_duck.png";
@@ -36,15 +37,19 @@ public class UserGenerator {
     /**
      * A private constructor that ensures no instances of this class can be created.
      */
-    private UserGenerator() {}
+    private UserGenerator()
+    {
+    }
 
     /**
      * Returns the singleton instance of the class
      *
      * @return the instance.
      */
-    public static UserGenerator getInstance() {
-        if(instance == null) {
+    public static UserGenerator getInstance()
+    {
+        if (instance == null)
+        {
             instance = new UserGenerator();
         }
 
@@ -55,12 +60,16 @@ public class UserGenerator {
      * Loads a lists of female first names, male first names, and surnames from the json files when
      * this class is loaded into memory.
      */
-    static {
-        try {
+    static
+    {
+        try
+        {
             maleNames = loadNamesFromJSon(MALE_NAMES_URL);
             femaleNames = loadNamesFromJSon(FEMALE_NAMES_URL);
             surnames = loadNamesFromJSon(SURNAMES_URL);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -72,20 +81,23 @@ public class UserGenerator {
      * @return the names.
      * @throws IOException if an IO error occurs.
      */
-    private static String [] loadNamesFromJSon(String urlString) throws IOException {
+    private static String[] loadNamesFromJSon(String urlString) throws IOException
+    {
 
         Names names;
 
         HttpURLConnection connection = null;
 
-        try {
+        try
+        {
             URL url = new URL(urlString);
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
 
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK)
+            {
                 // Get response body input stream
                 InputStream is = connection.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
@@ -93,15 +105,20 @@ public class UserGenerator {
 
                 names = (new Gson()).fromJson(br, Names.class);
 
-            } else {
+            }
+            else
+            {
                 throw new IOException("Unable to read from url. Response code: " + connection.getResponseCode());
             }
 
             connection.disconnect();
-        } finally {
-           if(connection != null) {
-               connection.disconnect();
-           }
+        }
+        finally
+        {
+            if (connection != null)
+            {
+                connection.disconnect();
+            }
         }
 
         return names == null ? null : names.getNames();
@@ -113,21 +130,26 @@ public class UserGenerator {
      * @param count the number of users to generate.
      * @return the generated users.
      */
-    public List<User> generateUsers(int count) {
+    public List<User> generateUsers(int count)
+    {
 
         List<User> users = new ArrayList<>(count);
 
         Random random = new Random();
 
-        while(users.size() < count) {
+        while (users.size() < count)
+        {
             // Randomly determine if the user will be male or female and generate a gender
             // specific first name
             String firstName;
             String imageULR;
-            if(random.nextInt(2) == 0) {
+            if (random.nextInt(2) == 0)
+            {
                 firstName = maleNames[random.nextInt(maleNames.length)];
                 imageULR = MALE_IMAGE_URL;
-            } else {
+            }
+            else
+            {
                 firstName = femaleNames[random.nextInt(femaleNames.length)];
                 imageULR = FEMALE_IMAGE_URL;
             }
@@ -135,7 +157,8 @@ public class UserGenerator {
             String lastName = surnames[random.nextInt(surnames.length)];
             User user = new User(firstName, lastName, imageULR);
 
-            if(!users.contains(user)) {
+            if (!users.contains(user))
+            {
                 users.add(user);
             }
         }
@@ -146,12 +169,14 @@ public class UserGenerator {
     /**
      * A class used by Gson to map the json data to an instance of this class.
      */
-    class Names {
+    class Names
+    {
 
         @SuppressWarnings("unused")
-        private String [] data;
+        private String[] data;
 
-        private String [] getNames() {
+        private String[] getNames()
+        {
             return data;
         }
     }

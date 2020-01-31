@@ -8,21 +8,25 @@ public class FollowingRequest {
     private final int limit;
     private final User lastFollowee;
 
-    public FollowingRequest(User follower, int limit, User lastFollowee) {
+    public FollowingRequest(User follower, int limit, User lastFollowee)
+    {
         this.follower = follower;
         this.limit = limit;
         this.lastFollowee = lastFollowee;
     }
 
-    public User getFollower() {
+    public User getFollower()
+    {
         return follower;
     }
 
-    public int getLimit() {
+    public int getLimit()
+    {
         return limit;
     }
 
-    public User getLastFollowee() {
+    public User getLastFollowee()
+    {
         return lastFollowee;
     }
 }

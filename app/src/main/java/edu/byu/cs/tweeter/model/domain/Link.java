@@ -2,7 +2,8 @@ package edu.byu.cs.tweeter.model.domain;
 
 import java.net.URL;
 
-public class Link {
+public class Link
+{
     private String linkText;
     private URL linkReference;
 

@@ -8,30 +8,39 @@ import java.io.IOException;
 
 import edu.byu.cs.tweeter.view.util.ImageUtils;
 
-public class LoadImageTask extends AsyncTask<String, Integer, Drawable []> {
+public class LoadImageTask extends AsyncTask<String, Integer, Drawable[]>
+{
 
     private final LoadImageObserver observer;
 
-    public LoadImageTask(LoadImageObserver observer) {
+    public LoadImageTask(LoadImageObserver observer)
+    {
         this.observer = observer;
     }
 
-    public interface LoadImageObserver {
+    public interface LoadImageObserver
+    {
 
         void imageLoadProgressUpdated(Integer progress);
-        void imagesLoaded(Drawable [] drawables);
+
+        void imagesLoaded(Drawable[] drawables);
     }
 
     @Override
-    protected Drawable [] doInBackground(String... urls) {
+    protected Drawable[] doInBackground(String... urls)
+    {
 
-        Drawable [] drawables = new Drawable [urls.length];
+        Drawable[] drawables = new Drawable[urls.length];
 
-        for(int i = 0; i < urls.length; i++) {
+        for (int i = 0; i < urls.length; i++)
+        {
 
-            try {
+            try
+            {
                 drawables[i] = ImageUtils.drawableFromUrl(urls[0]);
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 Log.e(this.getClass().getName(), "Error loading image. " + e);
             }
 
@@ -42,17 +51,21 @@ public class LoadImageTask extends AsyncTask<String, Integer, Drawable []> {
     }
 
     @Override
-    protected void onProgressUpdate(Integer... values) {
+    protected void onProgressUpdate(Integer... values)
+    {
 
-        if(observer != null) {
+        if (observer != null)
+        {
             observer.imageLoadProgressUpdated(values[0]);
         }
     }
 
     @Override
-    protected void onPostExecute(Drawable [] drawables) {
+    protected void onPostExecute(Drawable[] drawables)
+    {
 
-        if(observer != null) {
+        if (observer != null)
+        {
             observer.imagesLoaded(drawables);
         }
     }
