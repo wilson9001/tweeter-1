@@ -20,8 +20,9 @@ import edu.byu.cs.tweeter.net.response.StoryResponse;
 public class ServerFacade
 {
 
-    private static Map<User, List<User>> followeesByFollower;
-    private static Map<User, List<User>> followersOfFollowee;
+    private static Map<User, List<User>> followerToFollowees;
+    private static Map<User, List<User>> followeeToFollowers;
+    private static List<Follow> follows;
 
     public FollowingResponse getFollowees(FollowingRequest request)
     {
@@ -29,12 +30,12 @@ public class ServerFacade
         assert request.getLimit() >= 0;
         assert request.getFollower() != null;
 
-        if (followeesByFollower == null)
+        if (followerToFollowees == null)
         {
-            followeesByFollower = initializeFollowees();
+            followerToFollowees = initializeFollowees();
         }
 
-        List<User> allFollowees = followeesByFollower.get(request.getFollower());
+        List<User> allFollowees = followerToFollowees.get(request.getFollower());
         List<User> responseFollowees = new ArrayList<>(request.getLimit());
 
         boolean hasMorePages = false;
@@ -63,12 +64,12 @@ public class ServerFacade
         assert followersRequest.getLimit() >= 0;
         assert followersRequest.getFollowee() != null;
 
-        if (followersOfFollowee == null)
+        if (followeeToFollowers == null)
         {
-            followersOfFollowee = initializeFollowers();
+            followeeToFollowers = initializeFollowers();
         }
 
-        List<User> allFollowers = followersOfFollowee.get(followersRequest.getFollowee());
+        List<User> allFollowers = followeeToFollowers.get(followersRequest.getFollowee());
         List<User> responseFollowers = new ArrayList<>(followersRequest.getLimit());
 
         boolean hasMorePages = false;
@@ -134,7 +135,10 @@ public class ServerFacade
     {
         Map<User, List<User>> followersOfFollowee = new HashMap<>();
 
-        List<Follow> follows = getFollowGenerator().generateUsersAndFollows(100, 0, 50, FollowGenerator.Sort.FOLLOWEE_FOLLOWER);
+        if (follows == null)
+        {
+            follows = getFollowGenerator().generateUsersAndFollows(100, 0, 50, FollowGenerator.Sort.FOLLOWEE_FOLLOWER);
+        }
 
         for (Follow follow : follows)
         {
@@ -164,7 +168,7 @@ public class ServerFacade
         {
             // This is a paged request for something after the first page. Find the first item
             // we should return
-            for (int i = 0; i < allFollowees.size(); i++)
+            /*for (int i = 0; i < allFollowees.size(); i++)
             {
                 if (lastFollowee.equals(allFollowees.get(i)))
                 {
@@ -172,7 +176,10 @@ public class ServerFacade
                     // to the first one we should return
                     followeesIndex = i + 1;
                 }
-            }
+            }*/
+
+            //TODO: See if this works fine or if there's something weird with equals() which makes the provided way necessary
+            followeesIndex = allFollowees.indexOf(lastFollowee) + 1;
         }
 
         return followeesIndex;
@@ -186,8 +193,10 @@ public class ServerFacade
 
         Map<User, List<User>> followeesByFollower = new HashMap<>();
 
-        List<Follow> follows = getFollowGenerator().generateUsersAndFollows(100,
-                                                                            0, 50, FollowGenerator.Sort.FOLLOWER_FOLLOWEE);
+        if (follows == null)
+        {
+            follows = getFollowGenerator().generateUsersAndFollows(100, 0, 50, FollowGenerator.Sort.FOLLOWER_FOLLOWEE);
+        }
 
         // Populate a map of followees, keyed by follower so we can easily handle followee requests
         for (Follow follow : follows)

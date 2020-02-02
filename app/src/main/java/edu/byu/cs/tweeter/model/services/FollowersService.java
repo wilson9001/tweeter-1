@@ -4,7 +4,8 @@ import edu.byu.cs.tweeter.net.ServerFacade;
 import edu.byu.cs.tweeter.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.net.response.FollowersResponse;
 
-public class FollowersService {
+public class FollowersService
+{
 
     private static FollowersService instance;
 
@@ -12,7 +13,7 @@ public class FollowersService {
 
     public static FollowersService getInstance()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = new FollowersService();
         }
@@ -20,7 +21,10 @@ public class FollowersService {
         return instance;
     }
 
-    private FollowersService() {serverFacade = new ServerFacade();}
+    private FollowersService()
+    {
+        serverFacade = new ServerFacade();
+    }
 
     public FollowersResponse getFollowers(FollowersRequest followersRequest)
     {

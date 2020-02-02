@@ -41,7 +41,8 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_followers, container, false);
 
@@ -148,7 +149,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
         @Override
         public void onBindViewHolder(@NonNull FollowerHolder followersHolder, int position)
         {
-            if(!isLoading)
+            if (!isLoading)
             {
                 followersHolder.bindUser(users.get(position));
             }
