@@ -1,28 +1,78 @@
 package edu.byu.cs.tweeter.model.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import androidx.core.util.Pair;
 
-public class Status
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+public class Status implements Comparable<Status>
 {
 
     //since java strings have a toString method, and since the other two classes can also implement toString, this may allow for the use of a generic list to print the list.
-    private List statusChunks;
+    private final String statusText;
+    private final List<Pair<Integer, Linker>> references;
+    private final Date timeStamp;
+    private final User poster;
 
-    public Status(List statusChunks)
+    public Status(@NotNull String statusText, @NotNull User poster)
     {
-        this.statusChunks = statusChunks;
+        this.timeStamp = new Date();
+        this.poster = poster;
+        this.statusText = statusText;
+
+        //TODO: go through status string and build list of starting indices and references for references
+
+        references = null;
     }
 
     public String getStatusText()
     {
-        StringBuilder builder = new StringBuilder();
+        return statusText;
+    }
 
-        for (Object statusChunk : statusChunks)
-        {
-            builder.append(statusChunk.toString());
-        }
+    public User getPoster()
+    {
+        return poster;
+    }
 
-        return builder.toString();
+    public Date getTimeStamp()
+    {
+        return new Date(timeStamp.getTime());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(toString());
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Status status = (Status) o;
+        return toString().equals(status.toString());
+    }
+
+    @NotNull
+    @Override
+    public String toString()
+    {
+        return "Status{" +
+               "alias='" + poster.getAlias() + '\'' +
+               ", timestamp='" + timeStamp.getTime() + '\'' +
+               ", statusText='" + getStatusText() + '\'' +
+               '}';
+    }
+
+    @Override
+    public int compareTo(Status status)
+    {
+        return this.timeStamp.compareTo(status.getTimeStamp());
     }
 }

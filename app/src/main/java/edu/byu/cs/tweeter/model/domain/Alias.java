@@ -1,24 +1,33 @@
 package edu.byu.cs.tweeter.model.domain;
 
-public class Alias
-{
-    private String handleText;
-    private User userReference;
+import android.util.Log;
+import android.widget.Toast;
 
-    public Alias(String handleText, User userReference)
+public class Alias implements Linker
+{
+    private String alias;
+
+    public Alias(String handleText)
     {
-        this.handleText = handleText;
-        this.userReference = userReference;
+        this.alias = handleText;
+    }
+
+    @Override
+    public String getReference()
+    {
+        return alias;
+    }
+
+    @Override
+    public void activateReference()
+    {
+        //TODO: Switch to view of person referenced in alias
+        Log.d("Alias.activateReference", "You selected a reference to: " + alias);
     }
 
     @Override
     public String toString()
     {
-        return handleText;
-    }
-
-    public User getUser()
-    {
-        return userReference;
+        return "@" + alias;
     }
 }

@@ -10,7 +10,7 @@ public class FollowingPresenter extends Presenter
     private final View view;
 
     /**
-     * The interface by which this presenter communicates with it's view.
+     * The interface by which this presenter communicates with its view.
      */
     public interface View
     {

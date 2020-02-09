@@ -17,4 +17,9 @@ public class StoryResponse extends PagedResponse {
         super(true, hasMorePages);
         this.statuses = statuses;
     }
+
+    public List<Status> getStatuses()
+    {
+        return statuses;
+    }
 }

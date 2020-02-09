@@ -80,7 +80,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
                 @Override
                 public void onClick(View v)
                 {
-                    Toast.makeText(getContext(), "You selected '" + userName.getText() + "'.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "You selected '" + userName.getText() + "'.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
