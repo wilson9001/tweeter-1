@@ -19,10 +19,11 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class StatusGenerator
 {
-    private static final List<String> words;
-    private static final int maxWordCount = 280;
-    private static final int maxParagraphs = 3;
-    private static final int totalWords = 466441;
+    //private static final List<String> words;
+    private static final int maxCharCount = 280;
+    private static final int maxWordLength = 10;
+    private static final int minWordLength = 1;
+    //private static final int totalWords = 466441;
 
     private static StatusGenerator instance;
 
@@ -40,7 +41,7 @@ public class StatusGenerator
         return instance;
     }
 
-    static
+    /*static
     {
         words = new ArrayList<>(totalWords);
         try
@@ -58,7 +59,7 @@ public class StatusGenerator
         {
             Log.e("StatusGenerator-static", exception.toString(), exception);
         }
-    }
+    }*/
 
     public List<Status> generateStatuses(int minStatuses, int maxStatuses, Set<User> users)
     {
@@ -90,70 +91,54 @@ public class StatusGenerator
     {
         Random random = new Random();
 
-        //determine word count
-        int wordCount;
+        //determine char count
+        int charCount;
 
         do
         {
-            wordCount = random.nextInt(maxWordCount + 1);
+            charCount = random.nextInt(maxCharCount + 1);
 
-        } while (wordCount == 0);
+        } while (charCount == 0);
 
 
-        //determine number of paragraphs
-        int paragraphCount;
+        int charsRemaining = charCount;
+
+        StringBuilder builder = new StringBuilder();
 
         do
         {
-            paragraphCount = random.nextInt(maxParagraphs + 1);
+            int nextWordLength = generateWordLength(charsRemaining < maxWordLength ? charsRemaining : maxWordLength);
 
-        } while (paragraphCount == 0);
+            for (int currentWordLength = 0; currentWordLength < nextWordLength; currentWordLength++)
+            {
+                builder.append((char)(random.nextInt(26) + 'a'));
+            }
 
-        //determine number of words in each paragraph
-        int[] wordCountByParagraph = new int[paragraphCount];
+            charsRemaining -= nextWordLength;
 
-        int wordsRemaining = wordCount;
+            if(charsRemaining > 0)
+            {
+                builder.append(" ");
+            }
 
-        for (int paragraphIndex = 0; paragraphIndex < paragraphCount; paragraphIndex++)
+            --charsRemaining;
+
+        } while(charsRemaining > 0);
+
+        return builder.toString();
+    }
+
+    private int generateWordLength(int maxLength)
+    {
+        Random random = new Random();
+        int wordLength;
+
+        do
         {
-            if ((paragraphIndex + 1) < paragraphCount)
-            {
-                int wordsInParagraph;
+            wordLength = random.nextInt(maxLength + 1);
 
-                do
-                {
-                    wordsInParagraph = random.nextInt((wordsRemaining - (paragraphCount - (paragraphIndex + 1)))+ 1);
+        } while (wordLength < minWordLength);
 
-                } while (wordsInParagraph == 0);
-
-                wordCountByParagraph[paragraphIndex] =  wordsInParagraph;
-
-                wordsRemaining -= wordsInParagraph;
-            }
-            else
-            {
-                wordCountByParagraph[paragraphCount - 1] = wordsRemaining;
-            }
-        }
-
-        //TODO: create list of random words for each paragraph
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int paragraphIndex = 0; paragraphIndex < paragraphCount; paragraphIndex++)
-        {
-            for (int currentWordCount = 0 ; currentWordCount < wordCountByParagraph[paragraphIndex]; currentWordCount++)
-            {
-                //probabilistically add random word or punctuation
-                stringBuilder.append(words.get(random.nextInt(wordCount)));
-                stringBuilder.append(" ");
-            }
-
-            if ((paragraphIndex + 1) < paragraphCount)
-            {
-                stringBuilder.append("\n");
-            }
-        }
-
-        return stringBuilder.toString();
+        return wordLength;
     }
 }

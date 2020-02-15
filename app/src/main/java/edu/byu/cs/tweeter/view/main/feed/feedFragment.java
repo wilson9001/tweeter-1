@@ -1,35 +1,228 @@
 package edu.byu.cs.tweeter.view.main.feed;
-
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.byu.cs.tweeter.R;
+import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.FeedRequest;
+import edu.byu.cs.tweeter.net.response.FeedResponse;
+import edu.byu.cs.tweeter.presenter.FeedPresenter;
+import edu.byu.cs.tweeter.view.asyncTasks.GetFeedTask;
+import edu.byu.cs.tweeter.view.cache.ImageCache;
 
 
-public class feedFragment extends Fragment {
+public class feedFragment extends Fragment implements FeedPresenter.View {
     private static final int LOADING_DATA_VIEW = 0;
     private static final int ITEM_VIEW = 1;
 
     private static final int PAGE_SIZE = 10;
 
-    //TODO: create feedfragmentpresenter class and add as private data member to this class
-    //TODO: create feed recyclerview adapter and add as private data mamber to this class
+    private FeedPresenter feedPresenter;
 
-    public feedFragment() {
-        // Required empty public constructor
-    }
+    private FeedRecyclerViewAdapter feedRecyclerViewAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_feed, container, false);
+        View view = inflater.inflate(R.layout.fragment_feed, container, false);
+
+        feedPresenter = new FeedPresenter(this);
+
+        RecyclerView feedRecyclerView = view.findViewById(R.id.feedRecyclerView);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getContext());
+        feedRecyclerView.setLayoutManager(linearLayoutManager);
+
+        feedRecyclerViewAdapter = new FeedRecyclerViewAdapter();
+        feedRecyclerView.setAdapter(feedRecyclerViewAdapter);
+
+        feedRecyclerView.addOnScrollListener(new FeedRecyclerViewPaginationOnScrollListener(linearLayoutManager));
+
+        return view;
+    }
+
+    private class FeedHolder extends RecyclerView.ViewHolder
+    {
+        private final ImageView userImage;
+        private final TextView userAlias;
+        private final TextView userName;
+        private final TextView timestamp;
+        private final TextView statusText;
+
+        FeedHolder(@NonNull View itemView)
+        {
+            super(itemView);
+
+            userImage = itemView.findViewById(R.id.userImage);
+            userAlias = itemView.findViewById(R.id.userAlias);
+            userName = itemView.findViewById(R.id.userName);
+            timestamp = itemView.findViewById(R.id.timestamp);
+            statusText = itemView.findViewById(R.id.statusText);
+        }
+
+        void bindStatus(Status status)
+        {
+            User poster = status.getPoster();
+            userImage.setImageDrawable(ImageCache.getInstance().getImageDrawable(poster));
+            userAlias.setText(poster.getAlias());
+            userName.setText(poster.getName());
+            timestamp.setText(status.getTimeStamp().toString());
+            statusText.setText(status.getStatusText());
+        }
+    }
+
+    private class FeedRecyclerViewAdapter extends RecyclerView.Adapter<FeedHolder> implements GetFeedTask.GetFeedObserver
+    {
+        private final List<Status> statuses = new ArrayList<>();
+
+        private Status lastStatus;
+
+        private boolean hasMorePages;
+        private boolean isLoading = false;
+
+        FeedRecyclerViewAdapter()
+        {
+            loadMoreItems();
+        }
+
+        void addItems(List<Status> newStatuses)
+        {
+            int startInsertPosition = statuses.size();
+            statuses.addAll(newStatuses);
+            this.notifyItemRangeInserted(startInsertPosition, newStatuses.size());
+        }
+
+        void addItem(Status status)
+        {
+            statuses.add(status);
+            this.notifyItemInserted(statuses.size() - 1);
+        }
+
+        void removeItem(Status status)
+        {
+            int position = statuses.indexOf(status);
+            statuses.remove(position);
+            this.notifyItemRemoved(position);
+        }
+
+        @NonNull
+        @Override
+        public FeedHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+        {
+            LayoutInflater layoutInflater = LayoutInflater.from(feedFragment.this.getContext());
+            View view;
+
+            if (isLoading)
+            {
+                view = layoutInflater.inflate(R.layout.loading_row, parent, false);
+            }
+            else
+            {
+                view = layoutInflater.inflate(R.layout.status_row, parent, false);
+            }
+
+            return new FeedHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull FeedHolder feedHolder, int position)
+        {
+            if (!isLoading)
+            {
+                feedHolder.bindStatus(statuses.get(position));
+            }
+        }
+
+        @Override
+        public int getItemCount()
+        {
+            return statuses.size();
+        }
+
+        @Override
+        public int getItemViewType(int position)
+        {
+            return (position == statuses.size() - 1 && isLoading) ? LOADING_DATA_VIEW : ITEM_VIEW;
+        }
+
+        void loadMoreItems()
+        {
+            isLoading = true;
+            addLoadingFooter();
+
+            GetFeedTask getFeedTask = new GetFeedTask(feedPresenter, this);
+            FeedRequest feedRequest = new FeedRequest(feedPresenter.getCurrentUser(), PAGE_SIZE, lastStatus);
+            getFeedTask.execute(feedRequest);
+        }
+
+        @Override
+        public void feedRetrieved(FeedResponse feedResponse)
+        {
+            List<Status> statuses = feedResponse.getStatuses();
+
+            lastStatus = statuses.isEmpty() ? null : statuses.get(statuses.size() - 1);
+            hasMorePages = feedResponse.hasMorePages();
+
+            isLoading = false;
+            removeLoadingFooter();
+            feedRecyclerViewAdapter.addItems(statuses);
+        }
+
+        private void addLoadingFooter()
+        {
+            addItem(new Status("Lorem ipsum", new User("Dummy", "User", "")));
+        }
+
+        private void removeLoadingFooter()
+        {
+            removeItem(statuses.get(statuses.size() - 1));
+        }
+    }
+
+    private class FeedRecyclerViewPaginationOnScrollListener extends RecyclerView.OnScrollListener
+    {
+        private final LinearLayoutManager linearLayoutManager;
+
+        FeedRecyclerViewPaginationOnScrollListener(LinearLayoutManager linearLayoutManager)
+        {
+            this.linearLayoutManager = linearLayoutManager;
+        }
+
+        @Override
+        public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy)
+        {
+            super.onScrolled(recyclerView, dx, dy);
+
+            int visibleItemCount = linearLayoutManager.getChildCount();
+            int totalItemCount = linearLayoutManager.getItemCount();
+
+            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+
+            if(!feedRecyclerViewAdapter.isLoading && feedRecyclerViewAdapter.hasMorePages)
+            {
+                if ((visibleItemCount + firstVisibleItemPosition) >=
+                    totalItemCount && firstVisibleItemPosition >= 0)
+                {
+                    feedRecyclerViewAdapter.loadMoreItems();
+                }
+            }
+        }
     }
 }

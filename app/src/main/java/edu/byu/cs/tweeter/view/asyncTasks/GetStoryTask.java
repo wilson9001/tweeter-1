@@ -15,7 +15,6 @@ import edu.byu.cs.tweeter.view.util.ImageUtils;
 
 public class GetStoryTask extends AsyncTask<StoryRequest, Void, StoryResponse>
 {
-
     private final StoryPresenter storyPresenter;
     private final GetStoryObserver getStoryObserver;
 

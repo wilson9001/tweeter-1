@@ -65,6 +65,7 @@ public class storyFragment extends Fragment implements StoryPresenter.View
         private final ImageView userImage;
         private final TextView userAlias;
         private final TextView userName;
+        private final TextView timestamp;
         private final TextView statusText;
 
         StoryHolder(@NonNull View itemView)
@@ -74,6 +75,7 @@ public class storyFragment extends Fragment implements StoryPresenter.View
             userImage = itemView.findViewById(R.id.userImage);
             userAlias = itemView.findViewById(R.id.userAlias);
             userName = itemView.findViewById(R.id.userName);
+            timestamp = itemView.findViewById(R.id.timestamp);
             statusText = itemView.findViewById(R.id.statusText);
         }
 
@@ -83,6 +85,7 @@ public class storyFragment extends Fragment implements StoryPresenter.View
             userImage.setImageDrawable(ImageCache.getInstance().getImageDrawable(poster));
             userAlias.setText(poster.getAlias());
             userName.setText(poster.getName());
+            timestamp.setText(status.getTimeStamp().toString());
             statusText.setText(status.getStatusText());
         }
     }

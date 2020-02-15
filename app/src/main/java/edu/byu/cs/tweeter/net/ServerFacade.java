@@ -1,6 +1,7 @@
 package edu.byu.cs.tweeter.net;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import edu.byu.cs.tweeter.net.request.StoryRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
-import edu.byu.cs.tweeter.net.response.PagedResponse;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
 
 public class ServerFacade
@@ -98,8 +98,6 @@ public class ServerFacade
 
     public StoryResponse getStory(StoryRequest storyRequest)
     {
-
-        //TODO: Fill in functionality
         assert storyRequest.getLimit() >= 0;
         assert storyRequest.getOwner() != null;
 
@@ -109,23 +107,23 @@ public class ServerFacade
         }
 
         List<Status> statuses = userToStory.get(storyRequest.getOwner());
+
         List<Status> responseStatuses = new ArrayList<>(storyRequest.getLimit());
 
         boolean hasMorePages = false;
 
-        if (storyRequest.getLimit() > 0)
+        if (statuses != null)
         {
-            if (statuses != null)
+            Collections.sort(statuses);
+
+            int storyIndex = getStoryStartingIndex(storyRequest.getLastStatus(), statuses);
+
+            for (int limitCounter = 0; storyIndex < statuses.size() && limitCounter < storyRequest.getLimit(); storyIndex++, limitCounter++)
             {
-                int storyIndex = getStoryStartingIndex(storyRequest.getLastStatus(), statuses);
-
-                for (int limitCounter = 0; storyIndex < statuses.size() && limitCounter < storyRequest.getLimit(); storyIndex++, limitCounter++)
-                {
-                    responseStatuses.add(statuses.get(storyIndex));
-                }
-
-                hasMorePages = storyIndex < statuses.size();
+                responseStatuses.add(statuses.get(storyIndex));
             }
+
+            hasMorePages = storyIndex < statuses.size();
         }
 
         return new StoryResponse(responseStatuses, hasMorePages);
@@ -135,10 +133,37 @@ public class ServerFacade
     {
 
         //TODO: Fill in functionality
-        return null;
+        assert feedRequest.getLimit() >= 0;
+        assert feedRequest.getOwner() != null;
+
+        if (userToFeed == null)
+        {
+            userToFeed = initializeFeed();
+        }
+
+        List<Status> statuses = userToFeed.get(feedRequest.getOwner());
+
+        List<Status> responseStatuses = new ArrayList<>(feedRequest.getLimit());
+
+        boolean hasMorePages = false;
+
+        if (statuses != null)
+        {
+            Collections.sort(statuses);
+
+            int feedIndex = getFeedStartingIndex(feedRequest.getLastStatus(), statuses);
+
+            for (int limitCounter = 0; feedIndex < statuses.size() && limitCounter < feedRequest.getLimit(); feedIndex++, limitCounter++)
+            {
+                responseStatuses.add(statuses.get(feedIndex));
+            }
+
+            hasMorePages = feedIndex < statuses.size();
+        }
+
+        return new FeedResponse(responseStatuses, hasMorePages);
     }
 
-    //TODO: implement private helper functions for followers
     private int getFollowersStartingIndex(User lastFollower, List<User> allFollowers)
     {
         int followersIndex = 0;
@@ -188,7 +213,6 @@ public class ServerFacade
         return followersOfFollowee;
     }
 
-    //TODO: implement private helper functions for story
     private int getStoryStartingIndex(Status lastStatus, List<Status> allStatuses)
     {
         int storyIndex = 0;
@@ -234,7 +258,55 @@ public class ServerFacade
         return userToOwnStatuses;
     }
 
-    //TODO: implement private helper functions for feed
+    private int getFeedStartingIndex(Status lastStatus, List<Status> allStatuses)
+    {
+        int feedIndex = 0;
+
+        if (lastStatus != null)
+        {
+            feedIndex = allStatuses.indexOf(lastStatus) + 1;
+        }
+
+        return feedIndex;
+    }
+
+    private Map<User, List<Status>> initializeFeed()
+    {
+        Map<User, List<Status>> userToOtherStatuses = new HashMap<>();
+
+        if(userToStory == null)
+        {
+           userToStory = initializeStories();
+        }
+
+        for (User follower : followerToFollowees.keySet())
+        {
+            List<Status> feedStatuses = userToOtherStatuses.get(follower);
+
+            if (feedStatuses == null)
+            {
+                feedStatuses = new ArrayList<>();
+                userToOtherStatuses.put(follower, feedStatuses);
+            }
+
+            List<User> followees = followerToFollowees.get(follower);
+
+            if (followees != null)
+            {
+                for (User followee : followees)
+                {
+                    List<Status> statusesFromFollowee = userToStory.get(followee);
+
+                    if(statusesFromFollowee != null)
+                    {
+                        feedStatuses.addAll(statusesFromFollowee);
+                    }
+                }
+            }
+        }
+
+        return userToOtherStatuses;
+    }
 
     private int getFolloweesStartingIndex(User lastFollowee, List<User> allFollowees)
     {
