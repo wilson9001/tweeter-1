@@ -12,6 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".view.main.login.SignupActivity"
+            android:label="SignupActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".view.main.login.LoginActivity"
+            android:label="LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
             android:name=".view.main.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
@@ -21,6 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-     </application>
+    </application>
 
 </manifest>

@@ -1,5 +1,9 @@
 package edu.byu.cs.tweeter.presenter;
 
+import edu.byu.cs.tweeter.model.services.LoginService;
+import edu.byu.cs.tweeter.net.request.SignOutRequest;
+import edu.byu.cs.tweeter.net.response.SignOutResponse;
+
 public class MainPresenter extends Presenter
 {
 
@@ -10,7 +14,12 @@ public class MainPresenter extends Presenter
      */
     public interface View
     {
-        // If needed, Specify methods here that will be called on the view in response to model updates
+
+    }
+
+    public SignOutResponse signOut(SignOutRequest signOutRequest)
+    {
+        return LoginService.getInstance().signOut(signOutRequest);
     }
 
     public MainPresenter(View view)

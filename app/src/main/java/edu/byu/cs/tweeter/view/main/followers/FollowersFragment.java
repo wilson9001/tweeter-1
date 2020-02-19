@@ -173,7 +173,7 @@ public class FollowersFragment extends Fragment implements FollowersPresenter.Vi
             addLoadingFooter();
 
             GetFollowersTask getFollowersTask = new GetFollowersTask(followersPresenter, this);
-            FollowersRequest followersRequest = new FollowersRequest(followersPresenter.getCurrentUser(), PAGE_SIZE, lastFollower);
+            FollowersRequest followersRequest = new FollowersRequest(followersPresenter.getUserBeingViewed(), PAGE_SIZE, lastFollower);
             getFollowersTask.execute(followersRequest);
         }
 

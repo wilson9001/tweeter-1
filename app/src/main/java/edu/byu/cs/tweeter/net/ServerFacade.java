@@ -3,8 +3,10 @@ package edu.byu.cs.tweeter.net;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.byu.cs.tweeter.model.domain.Follow;
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -12,10 +14,16 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
 import edu.byu.cs.tweeter.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.net.request.SignInRequest;
+import edu.byu.cs.tweeter.net.request.SignOutRequest;
+import edu.byu.cs.tweeter.net.request.SignUpRequest;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.net.response.SignInResponse;
+import edu.byu.cs.tweeter.net.response.SignOutResponse;
+import edu.byu.cs.tweeter.net.response.SignUpResponse;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
 
 public class ServerFacade
@@ -25,12 +33,106 @@ public class ServerFacade
     private static Map<User, List<User>> followeeToFollowers;
     private static List<Follow> follows;
     private static List<Status> statuses;
+    private static List<User> allUsers;
     private static Map<User, List<Status>> userToStory;
     private static Map<User, List<Status>> userToFeed;
+    private static User signedInUser, userViewing;
+    private static Map<String, String> aliasesToPasswords;
+
+    public ServerFacade()
+    {
+        if(aliasesToPasswords == null)
+        {
+            aliasesToPasswords = new HashMap<>();
+
+            SignUpRequest signUpRequest = new SignUpRequest("Test", "User", "TestUser", "password", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+            signUp(signUpRequest);
+            aliasesToPasswords.put(signUpRequest.getAlias(), signUpRequest.getPassword());
+            allUsers = new ArrayList<>(userToFeed.keySet());
+            signedInUser = allUsers.get(allUsers.indexOf(new User("Test", "User", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png")));
+            userViewing = signedInUser;
+        }
+    }
+
+    public User currentUser()
+    {
+        return signedInUser;
+    }
+
+    public void clearCurrentUser()
+    {
+        signedInUser = null;
+    }
+
+    public User userViewing()
+    {
+        return userViewing;
+    }
+
+    public void clearUserBeingViewed()
+    {
+        userViewing = null;
+    }
+
+    public SignInResponse signIn(SignInRequest signInRequest)
+    {
+        if (userToFeed == null)
+        {
+            userToFeed = initializeFeed();
+        }
+
+        String userAlias = signInRequest.getUserAlias();
+
+        String userPassword = aliasesToPasswords.get(userAlias);
+
+        if(userPassword == null)
+        {
+            return new SignInResponse("User not found");
+        }
+        else if (userPassword.equals(signInRequest.getPassword()))
+        {
+            signedInUser = allUsers.get(allUsers.indexOf(new User(signInRequest.getUserAlias())));
+            userViewing = signedInUser;
+
+            return new SignInResponse(signedInUser);
+        }
+        else
+        {
+            return new SignInResponse("Incorrect password");
+        }
+    }
+
+    public SignUpResponse signUp(SignUpRequest signUpRequest)
+    {
+        if (userToFeed == null)
+        {
+            userToFeed = initializeFeed();
+        }
+
+        String userAlias = signUpRequest.getAlias();
+
+        if(!userToFeed.keySet().contains(userAlias))
+        {
+            User newUser = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), userAlias, signUpRequest.getImageURL());
+            followerToFollowees.put(newUser, new ArrayList<User>());
+            followeeToFollowers.put(newUser, new ArrayList<User>());
+            userToStory.put(newUser, new ArrayList<Status>());
+            userToFeed.put(newUser, new ArrayList<Status>());
+            aliasesToPasswords.put(userAlias, signUpRequest.getPassword());
+            signedInUser = newUser;
+            userViewing = signedInUser;
+            allUsers.add(newUser);
+
+            return new SignUpResponse(newUser);
+        }
+        else
+        {
+            return new SignUpResponse("Alias already taken");
+        }
+    }
 
     public FollowingResponse getFollowees(FollowingRequest request)
     {
-
         assert request.getLimit() >= 0;
         assert request.getFollower() != null;
 
@@ -378,5 +480,13 @@ public class ServerFacade
     StatusGenerator getStatusGenerator()
     {
         return StatusGenerator.getInstance();
+    }
+
+    public SignOutResponse signOut(SignOutRequest signOutRequest)
+    {
+        clearCurrentUser();
+        clearUserBeingViewed();
+
+        return new SignOutResponse();
     }
 }

@@ -10,4 +10,19 @@ public abstract class Presenter
     {
         return LoginService.getInstance().getCurrentUser();
     }
+
+    public void clearCurrentUser()
+    {
+        LoginService.getInstance().clearCurrentUser();
+    }
+
+    public User getUserBeingViewed()
+    {
+        return LoginService.getInstance().getUserBeingViewed();
+    }
+
+    public void clearUserBeingViewed()
+    {
+        LoginService.getInstance().clearUserBeingViewed();
+    }
 }

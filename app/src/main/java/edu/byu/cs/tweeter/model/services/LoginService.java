@@ -1,12 +1,17 @@
 package edu.byu.cs.tweeter.model.services;
 
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.ServerFacade;
+import edu.byu.cs.tweeter.net.request.SignInRequest;
+import edu.byu.cs.tweeter.net.request.SignOutRequest;
+import edu.byu.cs.tweeter.net.response.SignInResponse;
+import edu.byu.cs.tweeter.net.response.SignOutResponse;
 
 public class LoginService {
 
     private static LoginService instance;
 
-    private User currentUser;
+    private final ServerFacade serverFacade;
 
     public static LoginService getInstance() {
         if(instance == null) {
@@ -17,17 +22,35 @@ public class LoginService {
     }
 
     private LoginService() {
-        // TODO: Remove when the actual login functionality exists.
-        currentUser = new User("Test", "User",
-                "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
-        setCurrentUser(currentUser);
+        serverFacade = new ServerFacade();
+    }
+
+    public SignInResponse signIn(SignInRequest signInRequest)
+    {
+        return serverFacade.signIn(signInRequest);
     }
 
     public User getCurrentUser() {
-        return currentUser;
+        return serverFacade.currentUser();
     }
 
-    public void setCurrentUser(User currentUser) {
-        this.currentUser = currentUser;
+    public void clearCurrentUser()
+    {
+        serverFacade.clearCurrentUser();
+    }
+
+    public User getUserBeingViewed()
+    {
+        return serverFacade.userViewing();
+    }
+
+    public void clearUserBeingViewed()
+    {
+        serverFacade.clearUserBeingViewed();
+    }
+
+    public SignOutResponse signOut(SignOutRequest signOutRequest)
+    {
+        return serverFacade.signOut(signOutRequest);
     }
 }

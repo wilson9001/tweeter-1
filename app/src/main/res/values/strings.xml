@@ -11,6 +11,8 @@
     <string name="followersTabTitle">Followers</string>
     <string name="separator1">•</string>
     <string name="separator">~</string>
+    <string name="signupMessage">Sign Up</string>
+    <string name="signInMessage">Sign In</string>
 
     <string name="sampleAlias">"@UserAlias"</string>
     <string name="sampleUserName">The User</string>

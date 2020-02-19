@@ -25,6 +25,11 @@ public class User implements Comparable<User>
         this.imageUrl = imageURL;
     }
 
+    public User(@NotNull String userAlias)
+    {
+        this("", "", userAlias, "");
+    }
+
     public String getFirstName()
     {
         return firstName;
