@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
             closePostStatusButton.setOnClickListener(closeWindow);
             postStatusButton.setOnClickListener(postStatus);
         }
-    }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
