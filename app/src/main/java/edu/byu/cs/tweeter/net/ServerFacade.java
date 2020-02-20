@@ -16,6 +16,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
 import edu.byu.cs.tweeter.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.net.request.SignInRequest;
 import edu.byu.cs.tweeter.net.request.SignOutRequest;
 import edu.byu.cs.tweeter.net.request.SignUpRequest;
@@ -23,6 +24,7 @@ import edu.byu.cs.tweeter.net.request.StoryRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.net.response.SignInResponse;
 import edu.byu.cs.tweeter.net.response.SignOutResponse;
 import edu.byu.cs.tweeter.net.response.SignUpResponse;
@@ -243,6 +245,8 @@ public class ServerFacade
         {
             Collections.sort(statuses);
 
+            Collections.reverse(statuses);
+
             int storyIndex = getStoryStartingIndex(storyRequest.getLastStatus(), statuses);
 
             for (int limitCounter = 0; storyIndex < statuses.size() && limitCounter < storyRequest.getLimit(); storyIndex++, limitCounter++)
@@ -277,6 +281,8 @@ public class ServerFacade
         if (statuses != null)
         {
             Collections.sort(statuses);
+
+            Collections.reverse(statuses);
 
             int feedIndex = getFeedStartingIndex(feedRequest.getLastStatus(), statuses);
 
@@ -371,7 +377,7 @@ public class ServerFacade
 
         if (statuses == null)
         {
-            statuses = getStatusGenerator().generateStatuses(0, 50, followerToFollowees.keySet());
+            statuses = getStatusGenerator().generateStatuses(1, 50, followerToFollowees.keySet());
         }
 
         for (Status status : statuses)
@@ -518,5 +524,43 @@ public class ServerFacade
         clearUserBeingViewed();
 
         return new SignOutResponse();
+    }
+
+    public PostStatusResponse postStatus(PostStatusRequest postStatusRequest)
+    {
+        List<Status> statuses = userToStory.get(postStatusRequest.getPostingUser());
+
+        if (statuses == null)
+        {
+            return new PostStatusResponse("User not found");
+        }
+
+        Status newStatus = new Status(postStatusRequest.getStatusText(), postStatusRequest.getPostingUser());
+
+        statuses.add(newStatus);
+
+        if(followeeToFollowers == null)
+        {
+            followeeToFollowers = initializeFollowers();
+        }
+
+        List<User> followers = followeeToFollowers.get(postStatusRequest.getPostingUser());
+
+        if (followers == null)
+        {
+            return new PostStatusResponse("User not properly initialized");
+        }
+
+        if(userToFeed == null)
+        {
+            userToFeed = initializeFeed();
+        }
+
+        for (User follower : followers)
+        {
+            userToFeed.get(follower).add(newStatus);
+        }
+
+        return new PostStatusResponse();
     }
 }
