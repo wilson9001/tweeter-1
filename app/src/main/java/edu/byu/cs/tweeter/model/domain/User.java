@@ -14,20 +14,15 @@ public class User implements Comparable<User>
 
     public User(@NotNull String firstName, @NotNull String lastName, String imageURL)
     {
-        this(firstName, lastName, String.format("@%s%s", firstName, lastName), imageURL);
+        this(firstName, lastName, firstName.concat(lastName), imageURL);
     }
 
     public User(@NotNull String firstName, @NotNull String lastName, @NotNull String alias, String imageURL)
     {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.alias = alias;
-        this.imageUrl = imageURL;
-    }
-
-    public User(@NotNull String userAlias)
-    {
-        this("", "", userAlias, "");
+        this.firstName = firstName.isEmpty() ? "firstName" : firstName;
+        this.lastName = lastName.isEmpty() ? "lastName" : lastName;
+        this.alias = alias.isEmpty() ? "@".concat(this.firstName).concat(this.lastName) : "@".concat(alias);
+        this.imageUrl = imageURL.isEmpty() ? "https://vignette.wikia.nocookie.net/stupididy/images/1/19/Chester_Cheetah.jpg/revision/latest?cb=20161013224811" : imageURL;
     }
 
     public String getFirstName()

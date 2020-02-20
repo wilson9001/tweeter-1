@@ -86,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         tabs.setupWithViewPager(viewPager);
 
         findViewById(R.id.logOutButton).setOnClickListener(signOut);
+
+        findViewById(R.id.followButton).setVisibility(user.equals(userBeingViewed) ? View.GONE : View.VISIBLE);
     }
 
     @Override

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import edu.byu.cs.tweeter.R;
@@ -19,28 +20,22 @@ public class SignupActivity extends AppCompatActivity implements SignUpPresenter
 {
     private SignUpPresenter signUpPresenter;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
-
-        signUpPresenter = new SignUpPresenter(this);
-
-        findViewById(R.id.signUpButton).setOnClickListener(attemptSignUp);
-        findViewById(R.id.signInButton).setOnClickListener(toSignInPage);
-    }
-
     private View.OnClickListener attemptSignUp = new View.OnClickListener()
     {
         @Override
         public void onClick(View v)
         {
-            String firstName = v.findViewById(R.id.firstName).toString();
-            String lastName = v.findViewById(R.id.lastName).toString();
-            String alias = v.findViewById(R.id.alias).toString();
-            String password = v.findViewById(R.id.password).toString();
-            String imageURL = v.findViewById(R.id.imageURL).toString();
+            EditText firstNameRaw = findViewById(R.id.firstName);
+            EditText lastNameRaw = findViewById(R.id.lastName);
+            EditText aliasRaw = findViewById(R.id.alias);
+            EditText passwordRaw = findViewById(R.id.password);
+            EditText imageURLRaw = findViewById(R.id.imageURL);
+
+            String firstName = firstNameRaw.getText().toString();
+            String lastName = lastNameRaw.getText().toString();
+            String alias = aliasRaw.getText().toString();
+            String password = passwordRaw.getText().toString();
+            String imageURL = imageURLRaw.getText().toString();
 
             SignUpTask signUpTask = new SignUpTask(signUpPresenter, SignupActivity.this);
             SignUpRequest signUpRequest = new SignUpRequest(firstName, lastName, alias, password, imageURL);
@@ -56,6 +51,18 @@ public class SignupActivity extends AppCompatActivity implements SignUpPresenter
             transitionToSignIn();
         }
     };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_signup);
+
+        signUpPresenter = new SignUpPresenter(this);
+
+        findViewById(R.id.signUpButton).setOnClickListener(attemptSignUp);
+        findViewById(R.id.signInButton).setOnClickListener(toSignInPage);
+    }
 
     public void transitionToSignIn()
     {
@@ -78,6 +85,7 @@ public class SignupActivity extends AppCompatActivity implements SignUpPresenter
 
         if(signedInUser != null)
         {
+            Toast.makeText(this, signedInUser.getAlias(), Toast.LENGTH_SHORT).show();
             signedUp(signedInUser);
         }
         else

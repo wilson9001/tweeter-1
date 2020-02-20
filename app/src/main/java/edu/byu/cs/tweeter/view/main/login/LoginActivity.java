@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import edu.byu.cs.tweeter.R;
@@ -19,6 +20,23 @@ public class LoginActivity extends AppCompatActivity implements SignInPresenter.
 {
     private SignInPresenter signInPresenter;
 
+    private View.OnClickListener attemptSignIn = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            EditText signInAliasRaw = findViewById(R.id.alias);
+            EditText signInPasswordRaw = findViewById(R.id.password);
+
+            String signInAlias = signInAliasRaw.getText().toString();
+            String signInPassword = signInPasswordRaw.getText().toString();
+
+            SignInTask signInTask = new SignInTask(signInPresenter, LoginActivity.this);
+            SignInRequest signInRequest = new SignInRequest(signInAlias, signInPassword);
+            signInTask.execute(signInRequest);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -30,20 +48,6 @@ public class LoginActivity extends AppCompatActivity implements SignInPresenter.
         findViewById(R.id.signInButton).setOnClickListener(attemptSignIn);
         findViewById(R.id.signUpButton).setOnClickListener(toSignUpPage);
     }
-
-    private View.OnClickListener attemptSignIn = new View.OnClickListener()
-    {
-        @Override
-        public void onClick(View v)
-        {
-            String signInAlias = v.findViewById(R.id.alias).toString();
-            String signInPassword = v.findViewById(R.id.password).toString();
-
-            SignInTask signInTask = new SignInTask(signInPresenter, LoginActivity.this);
-            SignInRequest signInRequest = new SignInRequest(signInAlias, signInPassword);
-            signInTask.execute(signInRequest);
-        }
-    };
 
     private View.OnClickListener toSignUpPage = new View.OnClickListener()
     {

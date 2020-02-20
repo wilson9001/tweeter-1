@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.net;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ public class ServerFacade
     private static Map<User, List<User>> followeeToFollowers;
     private static List<Follow> follows;
     private static List<Status> statuses;
-    private static List<User> allUsers;
+    private static Map<String, User> aliasesToUsers;
     private static Map<User, List<Status>> userToStory;
     private static Map<User, List<Status>> userToFeed;
     private static User signedInUser, userViewing;
@@ -44,12 +46,8 @@ public class ServerFacade
         if(aliasesToPasswords == null)
         {
             aliasesToPasswords = new HashMap<>();
-
-            SignUpRequest signUpRequest = new SignUpRequest("Test", "User", "TestUser", "password", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
-            signUp(signUpRequest);
-            aliasesToPasswords.put(signUpRequest.getAlias(), signUpRequest.getPassword());
-            allUsers = new ArrayList<>(userToFeed.keySet());
-            signedInUser = allUsers.get(allUsers.indexOf(new User("Test", "User", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png")));
+            aliasesToPasswords.put("TestUser", "password");
+            signedInUser = new User("Test", "User", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
             userViewing = signedInUser;
         }
     }
@@ -81,6 +79,11 @@ public class ServerFacade
             userToFeed = initializeFeed();
         }
 
+        if(aliasesToUsers == null)
+        {
+            initializeUserList();
+        }
+
         String userAlias = signInRequest.getUserAlias();
 
         String userPassword = aliasesToPasswords.get(userAlias);
@@ -91,14 +94,31 @@ public class ServerFacade
         }
         else if (userPassword.equals(signInRequest.getPassword()))
         {
-            signedInUser = allUsers.get(allUsers.indexOf(new User(signInRequest.getUserAlias())));
+            signedInUser = aliasesToUsers.get("@".concat(userAlias));
             userViewing = signedInUser;
 
+            if (signedInUser == null)
+            {
+                Log.e("ServerFacade signin", "aliasesToUsers did not contain alias even though aliasesToPasswords did");
+            }
+
+            Log.d("ServerFacade signIn", "SignIn successful");
             return new SignInResponse(signedInUser);
         }
         else
         {
             return new SignInResponse("Incorrect password");
+        }
+    }
+
+    private void initializeUserList()
+    {
+        aliasesToUsers = new HashMap<>();
+
+        for (User user : userToFeed.keySet())
+        {
+            Log.d("initializeUserList", user.getAlias());
+            aliasesToUsers.put(user.getAlias(), user);
         }
     }
 
@@ -111,7 +131,12 @@ public class ServerFacade
 
         String userAlias = signUpRequest.getAlias();
 
-        if(!userToFeed.keySet().contains(userAlias))
+        if(aliasesToUsers == null)
+        {
+            initializeUserList();
+        }
+
+        if(aliasesToUsers.get("@".concat(userAlias)) == null)
         {
             User newUser = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), userAlias, signUpRequest.getImageURL());
             followerToFollowees.put(newUser, new ArrayList<User>());
@@ -121,7 +146,7 @@ public class ServerFacade
             aliasesToPasswords.put(userAlias, signUpRequest.getPassword());
             signedInUser = newUser;
             userViewing = signedInUser;
-            allUsers.add(newUser);
+            aliasesToUsers.put(userAlias, newUser);
 
             return new SignUpResponse(newUser);
         }
@@ -337,6 +362,11 @@ public class ServerFacade
         if (followerToFollowees == null)
         {
             followerToFollowees = initializeFollowees();
+        }
+
+        if (followeeToFollowers == null)
+        {
+            followeeToFollowers = initializeFollowers();
         }
 
         if (statuses == null)
