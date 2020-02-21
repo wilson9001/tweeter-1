@@ -43,8 +43,9 @@ import edu.byu.cs.tweeter.view.asyncTasks.SignOutTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 import edu.byu.cs.tweeter.view.main.feed.feedFragment;
 import edu.byu.cs.tweeter.view.main.login.LoginActivity;
+import edu.byu.cs.tweeter.view.main.story.storyFragment;
 
-public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View, SearchFragment.SearchFragmentListener, SearchTask.SearchObserver, SearchPresenter.View, ChangeRelationshipPresenter.View, ChangeRelationshipTask.ChangeRelationshipObserver, feedFragment.FeedFragmentListener
+public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View, SearchFragment.SearchFragmentListener, SearchTask.SearchObserver, SearchPresenter.View, ChangeRelationshipPresenter.View, ChangeRelationshipTask.ChangeRelationshipObserver, feedFragment.FeedFragmentListener, storyFragment.StoryFragmentListener
 {
     private MainPresenter presenter;
     private PostStatusPresenter postStatusPresenter;

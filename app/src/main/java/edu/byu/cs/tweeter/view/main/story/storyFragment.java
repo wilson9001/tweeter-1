@@ -1,12 +1,19 @@
 package edu.byu.cs.tweeter.view.main.story;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +28,7 @@ import java.util.List;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.SearchRequest;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
 import edu.byu.cs.tweeter.net.response.StoryResponse;
 import edu.byu.cs.tweeter.presenter.StoryPresenter;
@@ -35,8 +43,13 @@ public class storyFragment extends Fragment implements StoryPresenter.View
     private static final int PAGE_SIZE = 10;
 
     private StoryPresenter storyPresenter;
-
     private StoryRecyclerViewAdapter storyRecyclerViewAdapter;
+    private StoryFragmentListener storyFragmentListener;
+
+    public interface StoryFragmentListener
+    {
+        void aliasClicked(SearchRequest searchRequest);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,6 +71,28 @@ public class storyFragment extends Fragment implements StoryPresenter.View
         storyRecyclerView.addOnScrollListener(new StoryRecyclerViewPaginationOnScrollListener(layoutManager));
 
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        if (context instanceof StoryFragmentListener)
+        {
+            storyFragmentListener = (StoryFragmentListener) context;
+        }
+        else
+        {
+            throw new RuntimeException(context.toString()
+                                       + " must implement FeedFragmentListener");
+        }
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        storyFragmentListener = null;
     }
 
     private class StoryHolder extends RecyclerView.ViewHolder
@@ -86,7 +121,31 @@ public class storyFragment extends Fragment implements StoryPresenter.View
             userAlias.setText(poster.getAlias());
             userName.setText(poster.getName());
             timestamp.setText(status.getTimeStamp().toString());
-            statusText.setText(status.getStatusText());
+
+            String statusString = status.getStatusText();
+
+            SpannableString spannableString = new SpannableString(statusString);
+
+            final List<Pair<String, Pair<Integer, Integer>>> references = status.getReferences();
+
+            Log.d("bindStatus", "About to start creating spannable string for ".concat(status.getPoster().getAlias()).concat(", Entry count = ").concat(String.valueOf(references.size())));
+
+            for (final Pair<String, Pair<Integer, Integer>> reference : references)
+            {
+                Log.d("bindStatus loop", "Creating new clickable span for ".concat(reference.first));
+                spannableString.setSpan(new ClickableSpan()
+                {
+                    @Override
+                    public void onClick(@NonNull View widget)
+                    {
+                        Log.d("aliasClicked", "alias activated for ".concat(reference.first.substring(1)));
+                        storyFragmentListener.aliasClicked(new SearchRequest(reference.first.substring(1)));
+                    }
+                }, reference.second.first, reference.second.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+            statusText.setText(spannableString);
+            statusText.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
