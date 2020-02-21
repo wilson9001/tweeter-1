@@ -41,9 +41,10 @@ import edu.byu.cs.tweeter.view.asyncTasks.PostStatusTask;
 import edu.byu.cs.tweeter.view.asyncTasks.SearchTask;
 import edu.byu.cs.tweeter.view.asyncTasks.SignOutTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
+import edu.byu.cs.tweeter.view.main.feed.feedFragment;
 import edu.byu.cs.tweeter.view.main.login.LoginActivity;
 
-public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View, SearchFragment.SearchFragmentListener, SearchTask.SearchObserver, SearchPresenter.View, ChangeRelationshipPresenter.View, ChangeRelationshipTask.ChangeRelationshipObserver
+public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View, SearchFragment.SearchFragmentListener, SearchTask.SearchObserver, SearchPresenter.View, ChangeRelationshipPresenter.View, ChangeRelationshipTask.ChangeRelationshipObserver, feedFragment.FeedFragmentListener
 {
     private MainPresenter presenter;
     private PostStatusPresenter postStatusPresenter;
@@ -321,5 +322,11 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         {
             Toast.makeText(this, changeRelationshipResponse.getMessage(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void aliasClicked(SearchRequest searchRequest)
+    {
+        new SearchTask(searchPresenter, this).execute(searchRequest);
     }
 }

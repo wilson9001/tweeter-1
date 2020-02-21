@@ -1,11 +1,18 @@
 package edu.byu.cs.tweeter.view.main.feed;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +28,13 @@ import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
+import edu.byu.cs.tweeter.net.request.SearchRequest;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.presenter.FeedPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.GetFeedTask;
+import edu.byu.cs.tweeter.view.asyncTasks.SearchTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
+import edu.byu.cs.tweeter.view.main.MainActivity;
 
 
 public class feedFragment extends Fragment implements FeedPresenter.View {
@@ -36,6 +46,13 @@ public class feedFragment extends Fragment implements FeedPresenter.View {
     private FeedPresenter feedPresenter;
 
     private FeedRecyclerViewAdapter feedRecyclerViewAdapter;
+
+    private FeedFragmentListener feedFragmentListener;
+
+    public interface FeedFragmentListener
+    {
+        void aliasClicked(SearchRequest searchRequest);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,6 +73,28 @@ public class feedFragment extends Fragment implements FeedPresenter.View {
         feedRecyclerView.addOnScrollListener(new FeedRecyclerViewPaginationOnScrollListener(linearLayoutManager));
 
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        if (context instanceof FeedFragmentListener)
+        {
+            feedFragmentListener = (FeedFragmentListener) context;
+        }
+        else
+        {
+            throw new RuntimeException(context.toString()
+                                       + " must implement FeedFragmentListener");
+        }
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        feedFragmentListener = null;
     }
 
     private class FeedHolder extends RecyclerView.ViewHolder
@@ -84,7 +123,31 @@ public class feedFragment extends Fragment implements FeedPresenter.View {
             userAlias.setText(poster.getAlias());
             userName.setText(poster.getName());
             timestamp.setText(status.getTimeStamp().toString());
-            statusText.setText(status.getStatusText());
+
+            String statusString = status.getStatusText();
+
+            SpannableString spannableString = new SpannableString(statusString);
+
+            final List<Pair<String, Pair<Integer, Integer>>> references = status.getReferences();
+
+            Log.d("bindStatus", "About to start creating spannable string for ".concat(status.getPoster().getAlias()).concat(", Entry count = ").concat(String.valueOf(references.size())));
+
+            for (final Pair<String, Pair<Integer, Integer>> reference : references)
+            {
+                Log.d("bindStatus loop", "Creating new clickable span for ".concat(reference.first));
+                spannableString.setSpan(new ClickableSpan()
+                {
+                    @Override
+                    public void onClick(@NonNull View widget)
+                    {
+                        Log.d("aliasClicked", "alias activated for ".concat(reference.first.substring(1)));
+                        feedFragmentListener.aliasClicked(new SearchRequest(reference.first.substring(1)));
+                    }
+                }, reference.second.first, reference.second.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+            statusText.setText(spannableString);
+            statusText.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
