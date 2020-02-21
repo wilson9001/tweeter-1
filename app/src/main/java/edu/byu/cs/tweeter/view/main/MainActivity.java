@@ -25,26 +25,31 @@ import android.widget.Toast;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.net.request.PostStatusRequest;
+import edu.byu.cs.tweeter.net.request.SearchRequest;
 import edu.byu.cs.tweeter.net.request.SignOutRequest;
 import edu.byu.cs.tweeter.net.response.PostStatusResponse;
+import edu.byu.cs.tweeter.net.response.SearchResponse;
 import edu.byu.cs.tweeter.net.response.SignOutResponse;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
 import edu.byu.cs.tweeter.presenter.PostStatusPresenter;
+import edu.byu.cs.tweeter.presenter.SearchPresenter;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.asyncTasks.PostStatusTask;
+import edu.byu.cs.tweeter.view.asyncTasks.SearchTask;
 import edu.byu.cs.tweeter.view.asyncTasks.SignOutTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 import edu.byu.cs.tweeter.view.main.login.LoginActivity;
 
-public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View
+public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View, SearchFragment.SearchFragmentListener, SearchTask.SearchObserver, SearchPresenter.View
 {
     private MainPresenter presenter;
     private PostStatusPresenter postStatusPresenter;
+    private SearchPresenter searchPresenter;
     private User user;
     private User userBeingViewed;
     private ImageView userImageView;
     private PopupWindow popupWindow;
-    private Button closePostStatusButton, postStatusButton;
+    private Button closeDialogButton, executeDialogActionButton;
 
     private View.OnClickListener signOut = new View.OnClickListener()
     {
@@ -65,11 +70,23 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
             EditText statusRaw = popupWindow.getContentView().findViewById(R.id.status);
             String statusText = statusRaw.getText().toString();
 
-            Log.d("PostStatus Listener", statusText);
-
             PostStatusTask postStatusTask = new PostStatusTask(postStatusPresenter, MainActivity.this);
             PostStatusRequest postStatusRequest = new PostStatusRequest(user, statusText);
             postStatusTask.execute(postStatusRequest);
+        }
+    };
+
+    private View.OnClickListener executeSearch = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            EditText searchRaw = popupWindow.getContentView().findViewById(R.id.searchField);
+            String searchString = searchRaw.getText().toString();
+
+            SearchTask searchTask = new SearchTask(searchPresenter, MainActivity.this);
+            SearchRequest searchRequest = new SearchRequest(searchString);
+            searchTask.execute(searchRequest);
         }
     };
 
@@ -78,8 +95,27 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         @Override
         public void onClick(View v)
         {
-            Log.d("Close status listener", "Close status listener activated");
             popupWindow.dismiss();
+        }
+    };
+
+    private View.OnClickListener openSearchDialog = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View postStatusView = layoutInflater.inflate(R.layout.fragment_search, (ViewGroup) findViewById(R.id.mainActivityOuterView), false);
+
+            closeDialogButton = postStatusView.findViewById(R.id.cancelSearchButton);
+            executeDialogActionButton = postStatusView.findViewById(R.id.executeSearchButton);
+
+            popupWindow = new PopupWindow(postStatusView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+
+            popupWindow.showAsDropDown(findViewById(R.id.mainActivityOuterView));
+
+            closeDialogButton.setOnClickListener(closeWindow);
+            executeDialogActionButton.setOnClickListener(executeSearch);
         }
     };
 
@@ -88,22 +124,18 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         @Override
         public void onClick(View view)
         {
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show();
-
-            Log.d("openPostTweetDialog", "Inside onClickListener for open tweet");
             LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View postStatusView = layoutInflater.inflate(R.layout.fragment_post_status, (ViewGroup) findViewById(R.id.mainActivityOuterView), false);
 
-            closePostStatusButton = postStatusView.findViewById(R.id.closePostStatusButton);
-            postStatusButton = postStatusView.findViewById(R.id.postStatusButton);
+            closeDialogButton = postStatusView.findViewById(R.id.closePostStatusButton);
+            executeDialogActionButton = postStatusView.findViewById(R.id.postStatusButton);
 
             popupWindow = new PopupWindow(postStatusView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
 
             popupWindow.showAsDropDown(findViewById(R.id.mainActivityOuterView));
 
-            closePostStatusButton.setOnClickListener(closeWindow);
-            postStatusButton.setOnClickListener(postStatus);
+            closeDialogButton.setOnClickListener(closeWindow);
+            executeDialogActionButton.setOnClickListener(postStatus);
         }
     };
 
@@ -115,9 +147,13 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
 
         presenter = new MainPresenter(this);
         postStatusPresenter = new PostStatusPresenter(this);
+        searchPresenter = new SearchPresenter(this);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(openPostTweetDialog);
+
+        FloatingActionButton searchButton = findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(openSearchDialog);
 
         userImageView = findViewById(R.id.userImage);
 
@@ -184,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         }
     }
 
-    public void closeStatusPost()
+    public void closeDialogWindow()
     {
         popupWindow.dismiss();
     }
@@ -197,11 +233,27 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         if (message == null)
         {
             refreshHomeScreen();
-            closeStatusPost();
+            closeDialogWindow();
         }
         else
         {
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void searchRetrieved(SearchResponse searchResponse)
+    {
+        User searchedUser = searchResponse.getSearchedUser();
+
+        if(searchedUser == null)
+        {
+            Toast.makeText(this, searchResponse.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            refreshHomeScreen();
+            closeDialogWindow();
         }
     }
 }

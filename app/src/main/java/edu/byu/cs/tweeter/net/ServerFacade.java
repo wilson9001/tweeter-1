@@ -17,6 +17,7 @@ import edu.byu.cs.tweeter.net.request.FeedRequest;
 import edu.byu.cs.tweeter.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.net.request.PostStatusRequest;
+import edu.byu.cs.tweeter.net.request.SearchRequest;
 import edu.byu.cs.tweeter.net.request.SignInRequest;
 import edu.byu.cs.tweeter.net.request.SignOutRequest;
 import edu.byu.cs.tweeter.net.request.SignUpRequest;
@@ -25,6 +26,7 @@ import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.net.response.PostStatusResponse;
+import edu.byu.cs.tweeter.net.response.SearchResponse;
 import edu.byu.cs.tweeter.net.response.SignInResponse;
 import edu.byu.cs.tweeter.net.response.SignOutResponse;
 import edu.byu.cs.tweeter.net.response.SignUpResponse;
@@ -117,9 +119,13 @@ public class ServerFacade
     {
         aliasesToUsers = new HashMap<>();
 
+        if(userToFeed == null)
+        {
+            userToFeed = initializeFeed();
+        }
+
         for (User user : userToFeed.keySet())
         {
-            Log.d("initializeUserList", user.getAlias());
             aliasesToUsers.put(user.getAlias(), user);
         }
     }
@@ -562,5 +568,25 @@ public class ServerFacade
         }
 
         return new PostStatusResponse();
+    }
+
+    public SearchResponse search(SearchRequest searchRequest)
+    {
+        if (aliasesToUsers == null)
+        {
+            initializeUserList();
+        }
+
+        User searchedUser = aliasesToUsers.get("@".concat(searchRequest.getSearchQuery()));
+
+        if(searchedUser == null)
+        {
+            return new SearchResponse("@".concat(searchRequest.getSearchQuery()).concat(" not found"));
+        }
+        else
+        {
+            userViewing = searchedUser;
+            return new SearchResponse(searchedUser);
+        }
     }
 }
