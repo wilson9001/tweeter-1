@@ -18,8 +18,13 @@ public class ChangeRelationshipPresenter extends Presenter
         this.view = view;
     }
 
+    public ChangeRelationshipService getService()
+    {
+        return ChangeRelationshipService.getInstance();
+    }
+
     public ChangeRelationshipResponse changeRelationship(ChangeRelationshipRequest changeRelationshipRequest)
     {
-        return ChangeRelationshipService.getInstance().changeRelationship(changeRelationshipRequest);
+        return getService().changeRelationship(changeRelationshipRequest);
     }
 }

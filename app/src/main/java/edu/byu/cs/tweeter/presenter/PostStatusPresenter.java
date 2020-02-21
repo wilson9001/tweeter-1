@@ -18,8 +18,13 @@ public class PostStatusPresenter extends Presenter
         this.view = view;
     }
 
+    public PostStatusService getService()
+    {
+        return PostStatusService.getInstance();
+    }
+
     public PostStatusResponse postStatus(PostStatusRequest postStatusRequest)
     {
-        return PostStatusService.getInstance().postStatus(postStatusRequest);
+        return getService().postStatus(postStatusRequest);
     }
 }

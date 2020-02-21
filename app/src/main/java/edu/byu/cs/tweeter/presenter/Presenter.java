@@ -5,29 +5,33 @@ import edu.byu.cs.tweeter.model.services.LoginService;
 
 public abstract class Presenter
 {
+    private LoginService getParentClassService()
+    {
+        return LoginService.getInstance();
+    }
 
     public User getCurrentUser()
     {
-        return LoginService.getInstance().getCurrentUser();
+        return getParentClassService().getCurrentUser();
     }
 
     public void clearCurrentUser()
     {
-        LoginService.getInstance().clearCurrentUser();
+        getParentClassService().clearCurrentUser();
     }
 
     public User getUserBeingViewed()
     {
-        return LoginService.getInstance().getUserBeingViewed();
+        return getParentClassService().getUserBeingViewed();
     }
 
     public void clearUserBeingViewed()
     {
-        LoginService.getInstance().clearUserBeingViewed();
+        getParentClassService().clearUserBeingViewed();
     }
 
     public boolean getUserFollowsUserBeingViewed()
     {
-        return LoginService.getInstance().getUserFollowsUserBeingViewed();
+        return getParentClassService().getUserFollowsUserBeingViewed();
     }
 }

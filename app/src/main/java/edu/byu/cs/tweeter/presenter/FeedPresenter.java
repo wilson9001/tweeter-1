@@ -18,8 +18,13 @@ public class FeedPresenter extends Presenter
         this.view = view;
     }
 
+    public FeedService getService()
+    {
+        return FeedService.getInstance();
+    }
+
     public FeedResponse getFeed(FeedRequest feedRequest)
     {
-        return FeedService.getInstance().getFeed(feedRequest);
+        return getService().getFeed(feedRequest);
     }
 }

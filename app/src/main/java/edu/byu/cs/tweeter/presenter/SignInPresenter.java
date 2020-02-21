@@ -18,8 +18,13 @@ public class SignInPresenter extends Presenter
         this.view = view;
     }
 
+    public LoginService getService()
+    {
+        return LoginService.getInstance();
+    }
+
     public SignInResponse signIn(SignInRequest signInRequest)
     {
-        return LoginService.getInstance().signIn(signInRequest);
+        return getService().signIn(signInRequest);
     }
 }

@@ -21,8 +21,13 @@ public class StoryPresenter extends Presenter
         this.view = view;
     }
 
+    public StoryService getService()
+    {
+        return StoryService.getInstance();
+    }
+
     public StoryResponse getStory(StoryRequest storyRequest)
     {
-        return StoryService.getInstance().getStory(storyRequest);
+        return getService().getStory(storyRequest);
     }
 }

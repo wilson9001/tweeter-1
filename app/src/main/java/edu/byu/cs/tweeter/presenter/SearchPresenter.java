@@ -18,8 +18,13 @@ public class SearchPresenter extends Presenter
         this.view = view;
     }
 
+    public SearchService getService()
+    {
+        return SearchService.getInstance();
+    }
+
     public SearchResponse search(SearchRequest searchRequest)
     {
-        return SearchService.getInstance().search(searchRequest);
+        return getService().search(searchRequest);
     }
 }

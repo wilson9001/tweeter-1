@@ -17,8 +17,13 @@ public class SignUpPresenter extends Presenter
         this.view = view;
     }
 
+    public SignUpService getService()
+    {
+        return SignUpService.getInstance();
+    }
+
     public SignUpResponse signUp(SignUpRequest signUpRequest)
     {
-        return SignUpService.getInstance().signUp(signUpRequest);
+        return getService().signUp(signUpRequest);
     }
 }

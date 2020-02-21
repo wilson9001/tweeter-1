@@ -17,9 +17,14 @@ public class MainPresenter extends Presenter
 
     }
 
+    public LoginService getService()
+    {
+        return LoginService.getInstance();
+    }
+
     public SignOutResponse signOut(SignOutRequest signOutRequest)
     {
-        return LoginService.getInstance().signOut(signOutRequest);
+        return getService().signOut(signOutRequest);
     }
 
     public MainPresenter(View view)
