@@ -488,7 +488,7 @@ public class ServerFacade
 
         if (follows == null)
         {
-            follows = getFollowGenerator().generateUsersAndFollows(100, 0, 50, FollowGenerator.Sort.FOLLOWER_FOLLOWEE);
+            follows = getFollowGenerator().generateUsersAndFollows(100, 1, 50, FollowGenerator.Sort.FOLLOWER_FOLLOWEE);
         }
 
         // Populate a map of followees, keyed by follower so we can easily handle followee requests
@@ -586,7 +586,16 @@ public class ServerFacade
         else
         {
             userViewing = searchedUser;
-            return new SearchResponse(searchedUser);
+
+            if(followerToFollowees == null)
+            {
+                followerToFollowees = initializeFollowees();
+            }
+
+
+
+            List<User> followees = followerToFollowees.get(signedInUser);
+            return new SearchResponse(searchedUser, followees.contains(searchedUser));
         }
     }
 }

@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
     private ImageView userImageView;
     private PopupWindow popupWindow;
     private Button closeDialogButton, executeDialogActionButton;
+    private boolean userFollowsUserBeingViewed;
 
     private View.OnClickListener signOut = new View.OnClickListener()
     {
@@ -158,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         userImageView = findViewById(R.id.userImage);
 
         user = presenter.getCurrentUser();
+        userFollowsUserBeingViewed = false;
 
         refreshHomeScreen();
 
@@ -184,7 +186,22 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
-        findViewById(R.id.followButton).setVisibility(user.equals(userBeingViewed) ? View.GONE : View.VISIBLE);
+        Button changeRelationshipButton = findViewById(R.id.followButton);
+
+        if (user.equals(userBeingViewed))
+        {
+            changeRelationshipButton.setVisibility(View.GONE);
+        }
+        else if (userFollowsUserBeingViewed)
+        {
+            changeRelationshipButton.setText("Unfollow");
+            changeRelationshipButton.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            changeRelationshipButton.setText("Follow");
+            changeRelationshipButton.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -209,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
     {
         String message = signOutResponse.getMessage();
 
-        if(message == null)
+        if (message == null)
         {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
@@ -246,12 +263,13 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
     {
         User searchedUser = searchResponse.getSearchedUser();
 
-        if(searchedUser == null)
+        if (searchedUser == null)
         {
             Toast.makeText(this, searchResponse.getMessage(), Toast.LENGTH_LONG).show();
         }
         else
         {
+            userFollowsUserBeingViewed = searchResponse.getUserFollowsSearchedUser();
             refreshHomeScreen();
             closeDialogWindow();
         }
