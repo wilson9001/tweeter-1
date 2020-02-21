@@ -13,6 +13,7 @@ import java.util.Set;
 import edu.byu.cs.tweeter.model.domain.Follow;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.ChangeRelationshipRequest;
 import edu.byu.cs.tweeter.net.request.FeedRequest;
 import edu.byu.cs.tweeter.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
@@ -22,6 +23,7 @@ import edu.byu.cs.tweeter.net.request.SignInRequest;
 import edu.byu.cs.tweeter.net.request.SignOutRequest;
 import edu.byu.cs.tweeter.net.request.SignUpRequest;
 import edu.byu.cs.tweeter.net.request.StoryRequest;
+import edu.byu.cs.tweeter.net.response.ChangeRelationshipResponse;
 import edu.byu.cs.tweeter.net.response.FeedResponse;
 import edu.byu.cs.tweeter.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.net.response.FollowingResponse;
@@ -175,6 +177,7 @@ public class ServerFacade
         }
 
         List<User> allFollowees = followerToFollowees.get(request.getFollower());
+
         List<User> responseFollowees = new ArrayList<>(request.getLimit());
 
         boolean hasMorePages = false;
@@ -183,6 +186,8 @@ public class ServerFacade
         {
             if (allFollowees != null)
             {
+                Collections.sort(allFollowees);
+
                 int followeesIndex = getFolloweesStartingIndex(request.getLastFollowee(), allFollowees);
 
                 for (int limitCounter = 0; followeesIndex < allFollowees.size() && limitCounter < request.getLimit(); followeesIndex++, limitCounter++)
@@ -217,6 +222,8 @@ public class ServerFacade
         {
             if (allFollowers != null)
             {
+                Collections.sort(allFollowers);
+
                 int followersIndex = getFollowersStartingIndex(followersRequest.getLastFollower(), allFollowers);
 
                 for (int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < followersRequest.getLimit(); followersIndex++, limitCounter++)
@@ -596,6 +603,22 @@ public class ServerFacade
 
             List<User> followees = followerToFollowees.get(signedInUser);
             return new SearchResponse(searchedUser, followees.contains(searchedUser));
+        }
+    }
+
+    public ChangeRelationshipResponse changeRelationship(ChangeRelationshipRequest changeRelationshipRequest)
+    {
+        List<User> followees = followerToFollowees.get(changeRelationshipRequest.getCurrentUser());
+
+        if (changeRelationshipRequest.getRelationshipChange() == ChangeRelationshipRequest.RelationshipChange.FOLLOW)
+        {
+            followees.add(changeRelationshipRequest.getOtherUser());
+            return new ChangeRelationshipResponse(ChangeRelationshipResponse.RelationshipChanged.FOLLOWED);
+        }
+        else
+        {
+            followees.remove(changeRelationshipRequest.getOtherUser());
+            return new ChangeRelationshipResponse(ChangeRelationshipResponse.RelationshipChanged.UNFOLLOWED);
         }
     }
 }

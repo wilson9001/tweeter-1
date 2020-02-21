@@ -11,7 +11,6 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,15 +23,19 @@ import android.widget.Toast;
 
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.net.request.ChangeRelationshipRequest;
 import edu.byu.cs.tweeter.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.net.request.SearchRequest;
 import edu.byu.cs.tweeter.net.request.SignOutRequest;
+import edu.byu.cs.tweeter.net.response.ChangeRelationshipResponse;
 import edu.byu.cs.tweeter.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.net.response.SearchResponse;
 import edu.byu.cs.tweeter.net.response.SignOutResponse;
+import edu.byu.cs.tweeter.presenter.ChangeRelationshipPresenter;
 import edu.byu.cs.tweeter.presenter.MainPresenter;
 import edu.byu.cs.tweeter.presenter.PostStatusPresenter;
 import edu.byu.cs.tweeter.presenter.SearchPresenter;
+import edu.byu.cs.tweeter.view.asyncTasks.ChangeRelationshipTask;
 import edu.byu.cs.tweeter.view.asyncTasks.LoadImageTask;
 import edu.byu.cs.tweeter.view.asyncTasks.PostStatusTask;
 import edu.byu.cs.tweeter.view.asyncTasks.SearchTask;
@@ -40,17 +43,36 @@ import edu.byu.cs.tweeter.view.asyncTasks.SignOutTask;
 import edu.byu.cs.tweeter.view.cache.ImageCache;
 import edu.byu.cs.tweeter.view.main.login.LoginActivity;
 
-public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View, SearchFragment.SearchFragmentListener, SearchTask.SearchObserver, SearchPresenter.View
+public class MainActivity extends AppCompatActivity implements LoadImageTask.LoadImageObserver, MainPresenter.View, SignOutTask.SignOutObserver, PostStatusFragment.PostStatusFragmentListener, PostStatusTask.PostStatusObserver, PostStatusPresenter.View, SearchFragment.SearchFragmentListener, SearchTask.SearchObserver, SearchPresenter.View, ChangeRelationshipPresenter.View, ChangeRelationshipTask.ChangeRelationshipObserver
 {
     private MainPresenter presenter;
     private PostStatusPresenter postStatusPresenter;
     private SearchPresenter searchPresenter;
+    private ChangeRelationshipPresenter changeRelationshipPresenter;
     private User user;
     private User userBeingViewed;
     private ImageView userImageView;
     private PopupWindow popupWindow;
     private Button closeDialogButton, executeDialogActionButton;
     private boolean userFollowsUserBeingViewed;
+
+    private View.OnClickListener changeUserRelationship = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            Button thisButton = (Button) v;
+
+            String buttonText = thisButton.getText().toString();
+
+            ChangeRelationshipTask changeRelationshipTask = new ChangeRelationshipTask(changeRelationshipPresenter, MainActivity.this);
+
+            ChangeRelationshipRequest changeRelationshipRequest = new ChangeRelationshipRequest(user, userBeingViewed,
+                                                                                                buttonText.equals("Follow") ? ChangeRelationshipRequest.RelationshipChange.FOLLOW : ChangeRelationshipRequest.RelationshipChange.UNFOLLOW);
+
+            changeRelationshipTask.execute(changeRelationshipRequest);
+        }
+    };
 
     private View.OnClickListener signOut = new View.OnClickListener()
     {
@@ -149,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         presenter = new MainPresenter(this);
         postStatusPresenter = new PostStatusPresenter(this);
         searchPresenter = new SearchPresenter(this);
+        changeRelationshipPresenter = new ChangeRelationshipPresenter(this);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(openPostTweetDialog);
@@ -161,9 +184,10 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         user = presenter.getCurrentUser();
         userFollowsUserBeingViewed = false;
 
-        refreshHomeScreen();
-
         findViewById(R.id.logOutButton).setOnClickListener(signOut);
+
+        findViewById(R.id.changeRelationshipButton).setOnClickListener(changeUserRelationship);
+        refreshHomeScreen();
     }
 
     private void refreshHomeScreen()
@@ -186,7 +210,12 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
-        Button changeRelationshipButton = findViewById(R.id.followButton);
+        setChangeRelationshipButton();
+    }
+
+    private void setChangeRelationshipButton()
+    {
+        Button changeRelationshipButton = findViewById(R.id.changeRelationshipButton);
 
         if (user.equals(userBeingViewed))
         {
@@ -272,6 +301,25 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
             userFollowsUserBeingViewed = searchResponse.getUserFollowsSearchedUser();
             refreshHomeScreen();
             closeDialogWindow();
+        }
+    }
+
+    @Override
+    public void changeRelationshipRetrieved(ChangeRelationshipResponse changeRelationshipResponse)
+    {
+        String message = changeRelationshipResponse.getMessage();
+
+        if(message == null)
+        {
+            ChangeRelationshipResponse.RelationshipChanged relationshipChanged = changeRelationshipResponse.getRelationshipChanged();
+
+            userFollowsUserBeingViewed = relationshipChanged == ChangeRelationshipResponse.RelationshipChanged.FOLLOWED;
+
+            setChangeRelationshipButton();
+        }
+        else
+        {
+            Toast.makeText(this, changeRelationshipResponse.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }
