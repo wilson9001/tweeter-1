@@ -11,6 +11,7 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
     private ImageView userImageView;
     private PopupWindow popupWindow;
     private Button closeDialogButton, executeDialogActionButton;
-    private boolean userFollowsUserBeingViewed;
+    private boolean userFollowsUserBeingViewed, userSignedIn;
 
     private View.OnClickListener changeUserRelationship = new View.OnClickListener()
     {
@@ -76,16 +77,29 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         }
     };
 
-    private View.OnClickListener signOut = new View.OnClickListener()
+    private View.OnClickListener changeSignInState = new View.OnClickListener()
     {
         @Override
         public void onClick(View v)
         {
-            SignOutTask signoutTask = new SignOutTask(presenter, MainActivity.this);
-            SignOutRequest signOutRequest = new SignOutRequest(user);
-            signoutTask.execute(signOutRequest);
+            if(userSignedIn)
+            {
+                SignOutTask signoutTask = new SignOutTask(presenter, MainActivity.this);
+                SignOutRequest signOutRequest = new SignOutRequest(user);
+                signoutTask.execute(signOutRequest);
+            }
+            else
+            {
+                toLoginScreen();
+            }
         }
     };
+
+    private void toLoginScreen()
+    {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
 
     private View.OnClickListener postStatus = new View.OnClickListener()
     {
@@ -168,6 +182,9 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        userSignedIn = getIntent().getBooleanExtra("userSignedIn", false);
+
         setContentView(R.layout.activity_main);
 
         presenter = new MainPresenter(this);
@@ -176,7 +193,15 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         changeRelationshipPresenter = new ChangeRelationshipPresenter(this);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(openPostTweetDialog);
+
+        if(userSignedIn)
+        {
+            fab.setOnClickListener(openPostTweetDialog);
+        }
+        else
+        {
+            fab.hide();
+        }
 
         FloatingActionButton searchButton = findViewById(R.id.searchButton);
         searchButton.setOnClickListener(openSearchDialog);
@@ -184,9 +209,15 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         userImageView = findViewById(R.id.userImage);
 
         user = presenter.getCurrentUser();
-        userFollowsUserBeingViewed = false;
+        userFollowsUserBeingViewed = presenter.getUserFollowsUserBeingViewed();
 
-        findViewById(R.id.logOutButton).setOnClickListener(signOut);
+        Button changeSignInStateButton = findViewById(R.id.changeSignInStateButton);
+        changeSignInStateButton.setOnClickListener(changeSignInState);
+
+        if(!userSignedIn)
+        {
+            changeSignInStateButton.setText("Sign In");
+        }
 
         findViewById(R.id.changeRelationshipButton).setOnClickListener(changeUserRelationship);
         refreshHomeScreen();
@@ -206,9 +237,21 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         TextView userAlias = findViewById(R.id.userAlias);
         userAlias.setText(userBeingViewed.getAlias());
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(sectionsPagerAdapter);
+
+        if(userSignedIn && user.equals(userBeingViewed))
+        {
+            Log.d("refreshHomeScreen", "about to re-initialize adapter as SectionsPagerAdapter");
+            SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+            viewPager.setAdapter(sectionsPagerAdapter);
+        }
+        else
+        {
+            Log.d("refreshHomeScreen", "about to re-initialize adapter as PartialSectionsPagerAdapter");
+            PartialSectionsPagerAdapter partialSectionsPagerAdapter = new PartialSectionsPagerAdapter(this, getSupportFragmentManager());
+            viewPager.setAdapter(partialSectionsPagerAdapter);
+        }
+
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
@@ -219,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
     {
         Button changeRelationshipButton = findViewById(R.id.changeRelationshipButton);
 
-        if (user.equals(userBeingViewed))
+        if (user.equals(userBeingViewed) || !userSignedIn)
         {
             changeRelationshipButton.setVisibility(View.GONE);
         }
@@ -259,8 +302,8 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
 
         if (message == null)
         {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+            userSignedIn = false;
+            toLoginScreen();
         }
         else
         {
@@ -301,8 +344,11 @@ public class MainActivity extends AppCompatActivity implements LoadImageTask.Loa
         else
         {
             userFollowsUserBeingViewed = searchResponse.getUserFollowsSearchedUser();
-            refreshHomeScreen();
-            closeDialogWindow();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("userSignedIn", userSignedIn);
+            startActivity(intent);
+            //refreshHomeScreen();
+            //closeDialogWindow();
         }
     }
 

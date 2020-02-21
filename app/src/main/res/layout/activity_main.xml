@@ -26,7 +26,7 @@
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
 
             <Button
-                android:id="@+id/logOutButton"
+                android:id="@+id/changeSignInStateButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="200dp"

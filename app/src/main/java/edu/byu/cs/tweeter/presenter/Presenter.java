@@ -25,4 +25,9 @@ public abstract class Presenter
     {
         LoginService.getInstance().clearUserBeingViewed();
     }
+
+    public boolean getUserFollowsUserBeingViewed()
+    {
+        return LoginService.getInstance().getUserFollowsUserBeingViewed();
+    }
 }

@@ -43,12 +43,9 @@ public class Status implements Comparable<Status>
 
         while(matcher.find())
         {
-            Log.d("matcher find", matcher.group());
             //may need to store alias text here with group()
             references.add(new Pair<>(matcher.group(), new Pair<>(matcher.start(), matcher.end())));
         }
-
-        Log.d("postmatcher", "references.size() = ".concat(String.valueOf(references.size())));
     }
 
     public String getStatusText()

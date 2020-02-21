@@ -53,4 +53,9 @@ public class LoginService {
     {
         return serverFacade.signOut(signOutRequest);
     }
+
+    public boolean getUserFollowsUserBeingViewed()
+    {
+        return serverFacade.userFollowsUserBeingViewed();
+    }
 }

@@ -60,6 +60,11 @@ public class ServerFacade
 
     public User currentUser()
     {
+        if (signedInUser == null)
+        {
+            signedInUser = new User("Test", "User", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+        }
+
         return signedInUser;
     }
 
@@ -70,6 +75,11 @@ public class ServerFacade
 
     public User userViewing()
     {
+        if (userViewing == null)
+        {
+           userViewing = new User("Test", "User", "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png");
+        }
+
         return userViewing;
     }
 
@@ -599,8 +609,6 @@ public class ServerFacade
                 followerToFollowees = initializeFollowees();
             }
 
-
-
             List<User> followees = followerToFollowees.get(signedInUser);
             return new SearchResponse(searchedUser, followees.contains(searchedUser));
         }
@@ -620,5 +628,15 @@ public class ServerFacade
             followees.remove(changeRelationshipRequest.getOtherUser());
             return new ChangeRelationshipResponse(ChangeRelationshipResponse.RelationshipChanged.UNFOLLOWED);
         }
+    }
+
+    public boolean userFollowsUserBeingViewed()
+    {
+        if (followerToFollowees == null)
+        {
+            return false;
+        }
+
+        return followerToFollowees.get(signedInUser).contains(userViewing);
     }
 }

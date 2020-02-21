@@ -134,13 +134,11 @@ public class feedFragment extends Fragment implements FeedPresenter.View {
 
             for (final Pair<String, Pair<Integer, Integer>> reference : references)
             {
-                Log.d("bindStatus loop", "Creating new clickable span for ".concat(reference.first));
                 spannableString.setSpan(new ClickableSpan()
                 {
                     @Override
                     public void onClick(@NonNull View widget)
                     {
-                        Log.d("aliasClicked", "alias activated for ".concat(reference.first.substring(1)));
                         feedFragmentListener.aliasClicked(new SearchRequest(reference.first.substring(1)));
                     }
                 }, reference.second.first, reference.second.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

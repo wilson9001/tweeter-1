@@ -128,17 +128,13 @@ public class storyFragment extends Fragment implements StoryPresenter.View
 
             final List<Pair<String, Pair<Integer, Integer>>> references = status.getReferences();
 
-            Log.d("bindStatus", "About to start creating spannable string for ".concat(status.getPoster().getAlias()).concat(", Entry count = ").concat(String.valueOf(references.size())));
-
             for (final Pair<String, Pair<Integer, Integer>> reference : references)
             {
-                Log.d("bindStatus loop", "Creating new clickable span for ".concat(reference.first));
                 spannableString.setSpan(new ClickableSpan()
                 {
                     @Override
                     public void onClick(@NonNull View widget)
                     {
-                        Log.d("aliasClicked", "alias activated for ".concat(reference.first.substring(1)));
                         storyFragmentListener.aliasClicked(new SearchRequest(reference.first.substring(1)));
                     }
                 }, reference.second.first, reference.second.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -20,6 +20,22 @@ public class LoginActivity extends AppCompatActivity implements SignInPresenter.
 {
     private SignInPresenter signInPresenter;
 
+    private View.OnClickListener skipLoginPressed = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            skipLogin();
+        }
+    };
+
+    private void skipLogin()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("userSignedIn", false);
+        startActivity(intent);
+    }
+
     private View.OnClickListener attemptSignIn = new View.OnClickListener()
     {
         @Override
@@ -47,6 +63,7 @@ public class LoginActivity extends AppCompatActivity implements SignInPresenter.
 
         findViewById(R.id.signInButton).setOnClickListener(attemptSignIn);
         findViewById(R.id.signUpButton).setOnClickListener(toSignUpPage);
+        findViewById(R.id.skipLoginButton).setOnClickListener(skipLoginPressed);
     }
 
     private View.OnClickListener toSignUpPage = new View.OnClickListener()
@@ -60,15 +77,14 @@ public class LoginActivity extends AppCompatActivity implements SignInPresenter.
 
     public void transitionToSignUp()
     {
-        Toast.makeText(this, "This will transition to the sign up activity", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, SignupActivity.class);
         startActivity(intent);
     }
 
     public void signedIn(User signedInUser)
     {
-        Toast.makeText(this, "This will transition to the main activity", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("userSignedIn", true);
         startActivity(intent);
     }
 
