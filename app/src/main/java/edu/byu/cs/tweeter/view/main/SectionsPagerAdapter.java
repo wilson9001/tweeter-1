@@ -38,7 +38,6 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Log.d("Sections pager adapter", "Inside getItem with position ".concat(String.valueOf(position)));
         switch (position)
         {
             case FEED_FRAGMENT_POSITION:

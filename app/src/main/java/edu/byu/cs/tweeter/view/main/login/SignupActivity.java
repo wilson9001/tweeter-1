@@ -66,15 +66,14 @@ public class SignupActivity extends AppCompatActivity implements SignUpPresenter
 
     public void transitionToSignIn()
     {
-        Toast.makeText(this, "This will transition to the sign in activity", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
 
     public void signedUp(User signedInUser)
     {
-        Toast.makeText(this, "This will transition to the main activity", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("userSignedIn", true);
         startActivity(intent);
     }
 
@@ -85,7 +84,6 @@ public class SignupActivity extends AppCompatActivity implements SignUpPresenter
 
         if(signedInUser != null)
         {
-            Toast.makeText(this, signedInUser.getAlias(), Toast.LENGTH_SHORT).show();
             signedUp(signedInUser);
         }
         else

@@ -166,7 +166,7 @@ public class ServerFacade
             aliasesToPasswords.put(userAlias, signUpRequest.getPassword());
             signedInUser = newUser;
             userViewing = signedInUser;
-            aliasesToUsers.put(userAlias, newUser);
+            aliasesToUsers.put("@".concat(userAlias), newUser);
 
             return new SignUpResponse(newUser);
         }
@@ -616,16 +616,22 @@ public class ServerFacade
 
     public ChangeRelationshipResponse changeRelationship(ChangeRelationshipRequest changeRelationshipRequest)
     {
-        List<User> followees = followerToFollowees.get(changeRelationshipRequest.getCurrentUser());
+        User follower = changeRelationshipRequest.getCurrentUser();
+        User followee = changeRelationshipRequest.getOtherUser();
+        List<User> followees = followerToFollowees.get(follower);
+        List<User> followersOfFollowee = followeeToFollowers.get(followee);
 
         if (changeRelationshipRequest.getRelationshipChange() == ChangeRelationshipRequest.RelationshipChange.FOLLOW)
         {
-            followees.add(changeRelationshipRequest.getOtherUser());
+            followees.add(followee);
+            followersOfFollowee.add(follower);
+
             return new ChangeRelationshipResponse(ChangeRelationshipResponse.RelationshipChanged.FOLLOWED);
         }
         else
         {
-            followees.remove(changeRelationshipRequest.getOtherUser());
+            followees.remove(followee);
+            followersOfFollowee.remove(follower);
             return new ChangeRelationshipResponse(ChangeRelationshipResponse.RelationshipChanged.UNFOLLOWED);
         }
     }

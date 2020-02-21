@@ -34,7 +34,6 @@ public class PartialSectionsPagerAdapter extends FragmentPagerAdapter
     @Override
     public Fragment getItem(int position)
     {
-        Log.d("PartialSectionsPagerAda", "Inside getItem with position ".concat(String.valueOf(position)));
         switch (position)
         {
             case STORY_FRAGMENT_POSITION:
