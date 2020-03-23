@@ -1,19 +1,20 @@
 package edu.byu.cs.tweeter.net.request;
 
+import edu.byu.cs.tweeter.model.domain.SimpleStatus;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FeedRequest
 {
-    private final User owner;
-    private final int limit;
-    private final Status lastStatus;
+    public User owner;
+    public int limit;
+    public SimpleStatus lastStatus;
 
     public FeedRequest(User owner, int limit, Status lastStatus)
     {
         this.owner = owner;
         this.limit = limit;
-        this.lastStatus = lastStatus;
+        this.lastStatus = lastStatus == null ? null : new SimpleStatus(lastStatus.getStatusText(), lastStatus.getPoster(), lastStatus.getRawTimeStamp());
     }
 
     public User getOwner()
@@ -28,6 +29,6 @@ public class FeedRequest
 
     public Status getLastStatus()
     {
-        return lastStatus;
+        return new Status(lastStatus.statusText, lastStatus.poster, lastStatus.timeStamp);
     }
 }

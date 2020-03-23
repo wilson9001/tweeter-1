@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.model.services;
 
+import java.io.IOException;
+
 import edu.byu.cs.tweeter.net.ServerFacade;
 import edu.byu.cs.tweeter.net.request.SignUpRequest;
 import edu.byu.cs.tweeter.net.response.SignUpResponse;
@@ -8,6 +10,7 @@ public class SignUpService
 {
     private static SignUpService instance;
     private final ServerFacade serverFacade;
+    private static final String signUpUrl = "/signup";
 
     public static SignUpService getInstance()
     {
@@ -26,6 +29,14 @@ public class SignUpService
 
     public SignUpResponse signUp(SignUpRequest signUpRequest)
     {
-        return serverFacade.signUp(signUpRequest);
+        try
+        {
+            return serverFacade.signUp(signUpRequest, signUpUrl);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return new SignUpResponse("Server error");
+        }
     }
 }

@@ -26,15 +26,29 @@ public class Status implements Comparable<Status>
     }
 
     private List<Pair<String, Pair<Integer, Integer>>> references;
-    private final Date timeStamp;
+    private final long timeStamp;
     private final User poster;
 
-    public Status(@NotNull String statusText, @NotNull User poster)
+    public Status(@NotNull String statusText, @NotNull User poster, @NotNull long timeStamp)
     {
-        this.timeStamp = new Date();
+        this.timeStamp = timeStamp;
         this.poster = poster;
         this.statusText = statusText;
 
+        findReferences();
+    }
+
+    public Status(@NotNull String statusText, @NotNull User poster)
+    {
+        this.timeStamp = System.currentTimeMillis();
+        this.poster = poster;
+        this.statusText = statusText;
+
+        findReferences();
+    }
+
+    private void findReferences()
+    {
         //TODO: go through status string and build list of starting indices and references for references
         Pattern pattern = Pattern.compile(ALIASREGEX, Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(statusText);
@@ -60,7 +74,12 @@ public class Status implements Comparable<Status>
 
     public Date getTimeStamp()
     {
-        return new Date(timeStamp.getTime());
+        return new Date(timeStamp);
+    }
+
+    public long getRawTimeStamp()
+    {
+        return timeStamp;
     }
 
     @Override
@@ -84,7 +103,7 @@ public class Status implements Comparable<Status>
     {
         return "Status{" +
                "alias='" + poster.getAlias() + '\'' +
-               ", timestamp='" + timeStamp.getTime() + '\'' +
+               ", timestamp='" + timeStamp + '\'' +
                ", statusText='" + getStatusText() + '\'' +
                '}';
     }
@@ -92,6 +111,6 @@ public class Status implements Comparable<Status>
     @Override
     public int compareTo(Status status)
     {
-        return this.timeStamp.compareTo(status.getTimeStamp());
+        return Long.compare(timeStamp, status.getRawTimeStamp());
     }
 }

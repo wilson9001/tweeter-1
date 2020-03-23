@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -95,10 +96,12 @@ public class LoginActivity extends AppCompatActivity implements SignInPresenter.
 
         if (signedInUser != null)
         {
+            Log.d("LoginActivity", "User retrieved from sign in is ".concat(signedInUser.toString()));
             signedIn(signedInUser);
         }
         else
         {
+            Log.d("LoginActivity", "User retrieved from sign in is null");
             Toast.makeText(this, signInResponse.getMessage(), Toast.LENGTH_LONG).show();
         }
     }

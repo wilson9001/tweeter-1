@@ -7,11 +7,13 @@ import edu.byu.cs.tweeter.net.request.SignUpRequest;
 public class SignUpResponse
 {
     private final User signedUpUser;
+    private final String authToken;
     private final String message;
 
-    public SignUpResponse(User newUser)
+    public SignUpResponse(User newUser, String authToken)
     {
         signedUpUser = newUser;
+        this.authToken = authToken;
         message = null;
     }
 
@@ -19,6 +21,7 @@ public class SignUpResponse
     {
         this.message = message;
         signedUpUser = null;
+        authToken = null;
     }
 
     public User getUser()
@@ -29,5 +32,10 @@ public class SignUpResponse
     public String getMessage()
     {
         return message;
+    }
+
+    public String getAuthToken()
+    {
+        return authToken;
     }
 }

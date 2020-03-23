@@ -34,7 +34,7 @@ class SignUpPresenterTest implements SignUpPresenter.View
     @Test
     void signUpSuccess()
     {
-        SignUpResponse signUpResponse = mockSignUp(signUpRequest, new SignUpResponse(new User("", "", "")));
+        SignUpResponse signUpResponse = mockSignUp(signUpRequest, new SignUpResponse(new User("", "", ""), null));
 
         assertNotNull(signUpResponse.getUser());
         assertNull(signUpResponse.getMessage());

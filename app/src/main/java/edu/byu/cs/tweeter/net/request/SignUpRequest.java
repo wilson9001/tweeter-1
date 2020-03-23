@@ -2,7 +2,7 @@ package edu.byu.cs.tweeter.net.request;
 
 public class SignUpRequest
 {
-    private String firstName, lastName, alias, password, imageURL;
+    public String firstName, lastName, alias, password, imageURL;
 
     public SignUpRequest(String firstName, String lastName, String alias, String password, String imageURL)
     {

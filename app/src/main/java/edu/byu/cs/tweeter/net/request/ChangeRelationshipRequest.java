@@ -10,9 +10,9 @@ public class ChangeRelationshipRequest
         UNFOLLOW
     }
 
-    private final RelationshipChange relationshipChange;
+    public RelationshipChange relationshipChange;
 
-    private final User currentUser, otherUser;
+    public User currentUser, otherUser;
 
     public ChangeRelationshipRequest(User currentUser, User otherUser, RelationshipChange relationshipChange)
     {

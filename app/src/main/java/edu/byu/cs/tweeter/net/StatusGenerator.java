@@ -14,7 +14,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 /**
- * A temporary class that generates {@link Status} objects. This class may be removed when the server is created and the ServerFacade no longer needs to return dummy data.
+ * A temporary class that generates {@link Status} objects. This class may be removed when the server is created and the LocalServerFacade no longer needs to return dummy data.
  */
 
 public class StatusGenerator

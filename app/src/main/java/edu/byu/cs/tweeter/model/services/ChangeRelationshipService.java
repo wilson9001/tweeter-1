@@ -1,11 +1,14 @@
 package edu.byu.cs.tweeter.model.services;
 
+import java.io.IOException;
+
 import edu.byu.cs.tweeter.net.ServerFacade;
 import edu.byu.cs.tweeter.net.request.ChangeRelationshipRequest;
 import edu.byu.cs.tweeter.net.response.ChangeRelationshipResponse;
 
 public class ChangeRelationshipService
 {
+    private static final String changeRelationshipUri = "/changerelationship";
     private static ChangeRelationshipService instance;
     private final ServerFacade serverFacade;
 
@@ -26,6 +29,14 @@ public class ChangeRelationshipService
 
     public ChangeRelationshipResponse changeRelationship(ChangeRelationshipRequest changeRelationshipRequest)
     {
-        return serverFacade.changeRelationship(changeRelationshipRequest);
+        try
+        {
+            return serverFacade.changeRelationship(changeRelationshipRequest, changeRelationshipUri);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return new ChangeRelationshipResponse("Server error");
+        }
     }
 }

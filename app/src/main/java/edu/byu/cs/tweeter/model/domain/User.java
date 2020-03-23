@@ -7,10 +7,13 @@ import java.util.Objects;
 public class User implements Comparable<User>
 {
 
-    private final String firstName;
-    private final String lastName;
-    private final String alias;
-    private final String imageUrl;
+    public String firstName;
+    public String lastName;
+    public String alias;
+    public String imageUrl;
+
+    public User()
+    {}
 
     public User(@NotNull String firstName, @NotNull String lastName, String imageURL)
     {

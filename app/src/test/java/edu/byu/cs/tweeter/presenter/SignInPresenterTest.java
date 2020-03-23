@@ -35,7 +35,7 @@ class SignInPresenterTest implements SignInPresenter.View
     @Test
     void signInSuccess()
     {
-        SignInResponse signInResponse = mockSignIn(signInRequest, new SignInResponse(new User("", "", "")));
+        SignInResponse signInResponse = mockSignIn(signInRequest, new SignInResponse(new User("", "", ""), null));
 
         assertNotNull(signInResponse.getUser());
         assertNull(signInResponse.getMessage());
