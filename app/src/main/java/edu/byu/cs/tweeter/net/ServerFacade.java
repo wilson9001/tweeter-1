@@ -12,6 +12,7 @@ import edu.byu.cs.tweeter.net.request.FeedRequest_Net;
 import edu.byu.cs.tweeter.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.net.request.PostStatusRequest;
+import edu.byu.cs.tweeter.net.request.PostStatusRequest_Net;
 import edu.byu.cs.tweeter.net.request.SearchRequest;
 import edu.byu.cs.tweeter.net.request.SearchRequest_Net;
 import edu.byu.cs.tweeter.net.request.SignInRequest;
@@ -190,7 +191,7 @@ public class ServerFacade
 
     public PostStatusResponse postStatus(PostStatusRequest postStatusRequest, String urlPath) throws IOException
     {
-        return new ClientCommunicator(SERVER_URL).doPut(urlPath, postStatusRequest, null, PostStatusResponse.class);
+        return new ClientCommunicator(SERVER_URL).doPut(urlPath, new PostStatusRequest_Net(authToken, postStatusRequest), null, PostStatusResponse.class);
     }
 
     public ChangeRelationshipResponse changeRelationship(ChangeRelationshipRequest changeRelationshipRequest, String urlPath) throws IOException
