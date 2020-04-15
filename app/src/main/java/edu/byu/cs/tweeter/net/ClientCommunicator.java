@@ -14,7 +14,7 @@ import java.util.Map;
 class ClientCommunicator
 {
 
-    private static final int TIMEOUT_MILLIS = 10000;
+    private static final int TIMEOUT_MILLIS = 60000;
 
     private final String baseURL;
 

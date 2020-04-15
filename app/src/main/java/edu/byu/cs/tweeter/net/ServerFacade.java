@@ -110,7 +110,7 @@ public class ServerFacade
         if (currentUser == null)
         {
             currentUser = new User("Test", "User", "");
-            authToken = "HorriblyInsecureAuthtokenForUser.@TestUser";
+            authToken = "dummyAuthTokenFor@TestUser";
             userFollowsUserBeingViewed = false;
         }
 

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -84,10 +85,12 @@ public class SignupActivity extends AppCompatActivity implements SignUpPresenter
 
         if(signedInUser != null)
         {
+            Log.d("signUpRetrieved", "Signed in user is not null");
             signedUp(signedInUser);
         }
         else
         {
+            Log.d("signUpRetrieved", "Signed in user is null");
             Toast.makeText(this, signUpResponse.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
